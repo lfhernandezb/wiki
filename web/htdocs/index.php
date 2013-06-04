@@ -10,7 +10,7 @@
  * 10/01/2002 Initial creation.
 */
 
-$isDebug=true;
+$isDebug=false;
 
 $eocene="../classes/eocene";
 $configFile="../config.xml";
