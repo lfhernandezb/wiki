@@ -45,7 +45,7 @@ class GenericCommand extends BaseCommand
 		// Database::initialize($fc->getLink());
 
         // chequeo si el usuario esta logueado mediante el uso se una sesion
-        
+        /*
         HTTP_Session::start();
         
         HTTP_Session::setIdle(60 * 60);
@@ -127,7 +127,7 @@ class GenericCommand extends BaseCommand
 			$this->addVar('puedeAgregar', $puedeAgregar);			
         	        	
         }
-		
+		*/
 	}
 }
 
