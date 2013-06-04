@@ -8,7 +8,7 @@ include_once('../classes/Fabricante.php');
 include_once('../classes/Motivo.php');
 include_once('../classes/Usuario.php');
 
-class DisplayHome extends GenericCommand {
+class Links extends GenericCommand {
 	function execute(){
 		global $fc;
 
