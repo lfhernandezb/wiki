@@ -1,0 +1,75 @@
+en,100,Error: No template engine found
+en,101,Error: No template found for template alias %s
+en,102,Error: BaseCommand::getContents() should be overwritten in its subclass
+en,103,Error: Must overwrite execute method in %s or one of the classes used as plugs in templates of %s
+en,104,Error: Error connecting to server because: %s
+en,105,Error: Error selecting database because: %s
+en,106,Error: Config file error %s
+en,107,Error: Alias for path %s not found in config file
+en,108,Error: No node found in config file for plug %s in plugCommands section
+en,109,Error: defaultCommand node not found in config file
+en,110,Error: rootFolder node not found in config file
+en,111,Error: rootURL node not found in config file
+en,112,Error: receivers node not found in config file
+en,113,Error: Cannot find any receiver
+en,114,Error: paths node not found in config file
+en,115,Error: commands node not found in config file
+en,116,Error: Invalid command: %s. No information found in commands section of config file
+en,117,Error: Invalid command: %s(no class node)
+en,118,Error: Invalid command: %s(empty class node)
+en,119,Error: Empty command is invalid
+en,120,Error: Cannot open user language file in %s
+en,1000,Error in MysqlDb library class: The error is: %s
+en,1001,Error in MysqlDb library class: Operation failed in MyslDb library class because: %s
+en,1002,Error in PearDBWrapper: No information found in databaseinfo node
+en,1003,Error in PearDBWrapper: Fatal DB error: %s
+es,100,Error: No se ha encontrado el motor de plantillas (templates) 
+es,101,Error: No se ha encontrado plantilla (template) para el alias %s 
+es,102,Error: Debe sobrecargarse BaseCommand::getContents() en su subclase 
+es,103,Error: Debe sobrecargarse el método execute en %s o una de sus clases utilizadas como añadidos (plugs) en plantillas (templates) de %s 
+es,104,Error: Error al conectar con el servidor debido a : %s 
+es,105,Error: Error al seleccionar la base de datos debido a: %s 
+es,106,Error: Error en archivo de configuración %s 
+es,107,Error: No se ha encontrado alias para el path %s en el archivo de configuración 
+es,108,Error: No se ha encontrado ningún nodo para el añadido (plug) %s en la sección plugCommands del archivo de configuración 
+es,109,Error: No se ha encontrado el nodo defaultCommand en el archivo de configuración 
+es,110,Error: No se ha encontrado el nodo rootFolder en el archivo de configuración 
+es,111,Error: No se ha encontrado el nodo rootURL en el archivo de configuración 
+es,112,Error: No se ha encontrado el nodo receivers en el archivo de configuración 
+es,113,Error: No se ha encontrado ningún receptor (receiver) 
+es,114,Error: No se ha encontrado el nodo paths en el archivo de configuración 
+es,115,Error: No se ha encontrado el nodo commands en el archivo de configuración 
+es,116,Error: Orden no válida: %s. No hay información sobre ella en la sección commands del archivo de configuración 
+es,117,Error: Orden no válida: %s (no hay nodo class) 
+es,118,Error: Orden no válida: %s (nodo class vacío) 
+es,119,Error: La orden vacía no es válida 
+es,120,Error: No se puede abrir el archivo de idiomas del usuario en %s 
+es,1000,Error en la clase de biblioteca MysqlDb: El error es: %s 
+es,1001,Error en la clase de biblioteca MysqlDb: Falló una operación en la clase de biblioteca MyslDb debido a: %s 
+es,1002,Error en PearDBWrapper: No se ha encontrado información en el nodo databaseinfo 
+es,1003,Error en PearDBWrapper: Error fatal de la Base de datos: %s 
+pl,100,Bd: Brak silnika obsugi szablonw
+pl,101,Bd: Nie znaleziono szablonu o aliasie %s
+pl,102,Bd: metoda BaseCommand::getContents() powinna by nadpisana w klasie dziedziczcej
+pl,103,Bd: Naley nadpisa metod execute method w klasie %s lub jednej z klas uywanych jako wtyczki w szablonie %s
+pl,104,Bd: Bd w trakcie podczania do serwera: %s
+pl,105,Bd: Bd przy wyborze baz ydanych: %s
+pl,106,Bd: Bd w pliku konfiguracyjnym %s
+pl,107,Bd: Alias dla cieki %s nie jest zdefiniowany w pliku konfiguracyjnym
+pl,108,Bd: Brak wza w pliku konfiguracyjnym w sekcji 'plugCommands' dla wtyczki %s
+pl,109,Bd: Brak wza 'defaultCommand' w pliku konfiguracyjnym
+pl,110,Bd: Brak wza 'rootFolder' w pliku konfiguracyjnym
+pl,111,Bd: Brak wza 'rootURL' w pliku konfiguracyjnym
+pl,112,Bd: Brak wza 'receivers'  w pliku konfiguracyjnym
+pl,113,Bd: Nie zdefiniowano adnego pliku typu 'receiver'
+pl,114,Bd: Brak wza 'paths' w pliku konfiguracyjnym
+pl,115,Bd: Brak wza 'commands' w pliku konfiguracyjnym
+pl,116,Bd: Niepoprawna komenda: %s. Brak informacji w sekcji 'commands' w pliku konfiguracyjnym
+pl,117,Bd: Niepoprawna komenda: %s(brak wza 'class')
+pl,118,Bd: Niepoprawna komenda: %s(pusty wze 'class')
+pl,119,Bd: Pusta komenda jest niepoprawna
+pl,120,Bd: Nie mona otworzy pliku jzykowego w %s
+pl,1000,Bd klasy MysqlDb: Opis bdu: %s
+pl,1001,Bd klasy MysqlDb: Operacja nie powioda si z powodu: %s
+pl,1002,Bd w PearDBWrapper: Brak informacji w wle 'databaseinfo'
+pl,1003,Bd w PearDBWrapper: Bd fatalny bazy danych: %s

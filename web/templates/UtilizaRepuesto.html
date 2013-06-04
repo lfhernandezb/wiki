@@ -1,0 +1,396 @@
+<{include file="top.html"}>
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+
+        <{if isset($exito)}>
+	        <{if $exito}>
+
+				// selecciono los itemes elegidos pre submit
+				$('#motivo').val($('#sel_motivo').val());
+				
+				$('#posicion').attr('disabled', true); //attr('readonly', true);
+				$('#ip').attr('disabled', true); //attr('readonly', true);
+				$('#consola_activa').attr('disabled', true); //attr('readonly', true);
+				$('#consola_standby').attr('disabled', true); //attr('readonly', true);
+				$('#ubicacion').attr('disabled', true); //attr('readonly', true);
+				$('#valor').attr('disabled', true); //attr('readonly', true);
+				$('#retiro').parent().parent().hide(); //attr('disabled', true); //).attr('readonly', true);
+				//$('#comentarios').attr('readonly', true);
+
+				//$('#submit').attr('disabled', true);
+				$('.submit').hide();
+		
+			<{/if}>
+		<{/if}>
+		
+		$('#usa_repuesto').submit(function(e) {
+			var element;
+			var val;
+			var message;
+			var previousElement;
+			var data;
+
+			var selects = [[0, 'motivo']];
+			
+			
+            <{if $ur_cantidad > 1}>
+            	var texts = ['posicion', 'ubicacion', 'valor', 'retiro'];
+            <{else}>
+            	var texts = ['posicion', 'ubicacion', 'valor'];
+            <{/if}>
+			
+			
+			var success =  true;
+			var errorElement = document.createElement('label');
+			
+			$(errorElement).addClass('error');
+						
+			$(selects).each(function() {
+				if (success) {
+					element = $('#'+this[1]);
+					val = $(element).val();
+					if (val == '') {
+						// seleccionado el primer elemento (Seleccione item)
+						message = 'Favor seleccione '+this[1];
+						previousElement = $('#nfSelectTarget'+this[0]);
+						success = false;
+					}
+				}
+			}); // end each
+
+			$(texts).each(function() {
+				if (success) {
+					element = $('#'+this);
+	
+					if ($(element).val() == '') {
+						message = 'Favor ingrese '+this;
+						previousElement = element;
+						success = false;
+					}
+				}
+			}); // end each
+
+            <{if $ur_cantidad > 1}>
+				if (success) {
+					var disponible = $('#disponible').val();
+					var retiro = $('#retiro').val();
+					
+					element = $('#retiro');
+	
+					if (retiro > disponible) {
+						message = 'Favor ingrese una cantidad menor o igual a '+disponible.toString();
+						previousElement = element;
+						success = false;
+					}
+				}
+	        <{/if}>
+			
+			if (!success) {
+				$(element).addClass('error');
+				$(errorElement).text(message);
+				$(errorElement).insertAfter(previousElement);
+				$(element).focus();
+			}
+			
+			return success;
+		}); // end submit
+		
+		
+		// texto en USER HELP DESK
+		$('.sidebar_box p').html('<{$user_help_desk}>');
+		
+	}); // end ready
+
+</script>
+
+<script type="text/javascript" src="js/utiliza_repuesto.js"></script>
+
+</head>
+<body>
+<div id="main_container">
+
+	<{include file="header.html"}>
+    
+    <div class="main_content">
+    
+    <{include file="upper_menu.html"}>
+                    
+    <div class="center_content">  
+    
+    
+    
+    <div class="left_content">
+                        
+            <div class="sidebarmenu">
+                        
+                <a class="menuitem" href="<{$receiver}>?do=DisplayHome">Buscar Repuesto</a>
+                
+				<{if $puedeAgregar}>
+					<a class="menuitem" href="<{$receiver}>?do=AgregaRepuestoMasivo">Agregar Repuesto Masivo</a>
+				<{/if}>
+				
+                <a class="menuitem" href="<{$receiver}>?do=ReporteActividad">Reporte Actividad</a>
+                
+                <a class="menuitem" href="<{$receiver}>?do=ReporteExistencias">Reporte Existencias</a>				
+                
+                <{if isset($search_keyword)}>
+		            <form action="<{$receiver}>?do=DisplayHome" method="post" id="buscar" name="form_search">
+			            <input type="hidden" name="search_keyword" class="search_input" value="<{$search_keyword}>" />
+						<!--            <input type="image" class="search_submit" src="images/search.png" />-->
+						<a class="menuitem_green" href="#" onclick="document.form_search.submit();">Volver al listado</a>
+		            </form>            
+				<{/if}>
+                <{if isset($plataforma)}>
+		         	<form action="<{$receiver}>?do=DisplayHome" method="post" id="buscar_2" name="form_search_2">
+						<input type="hidden" name="plataforma" value="<{$plataforma}>" />
+						<input type="hidden" name="region" value="<{$region}>" />
+						<input type="hidden" name="ciudad" value="<{$ciudad}>" />
+						<input type="hidden" name="re" value="<{$re}>" />
+						<input type="hidden" name="fabricante" value="<{$fabricante}>" />
+						<input type="hidden" name="modelo" value="<{$modelo}>" />
+						<a class="menuitem_green" href="#" onclick="document.form_search_2.submit();">Volver al listado</a>
+		            </form>            
+				<{/if}>
+            
+            
+            
+
+			</div>
+			
+            <{include file="sidebar_box.html"}>
+			
+            <!--
+            
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h4>Important notice</h4>
+                <img src="images/notice.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h5>Download photos</h5>
+                <img src="images/photo.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>  
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h3>To do List</h3>
+                <img src="images/info.png" alt="" title="" class="sidebar_icon_right" />
+                <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                 <li>Lorem ipsum dolor sit ametconsectetur <strong>adipisicing</strong> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur <a href="#">adipisicing</a> elit.</li>
+                   <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                    <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                     <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                </ul>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            --> 
+    
+    </div>  
+    
+    <div class="right_content">            
+        
+	<h2>Utiliza&nbsp;Repuesto</h2>
+                    
+                    
+	<!--
+	 <a href="#" class="bt_green"><span class="bt_green_lft"></span><strong>Add new item</strong><span class="bt_green_r"></span></a>
+     <a href="#" class="bt_blue"><span class="bt_blue_lft"></span><strong>View all items from category</strong><span class="bt_blue_r"></span></a>
+     <a href="#" class="bt_red"><span class="bt_red_lft"></span><strong>Delete items</strong><span class="bt_red_r"></span></a> 
+     
+     
+        <div class="pagination">
+        <span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a>…<a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>
+        </div> 
+     -->
+     <!--
+     <h2>Warning Box examples</h2>
+      
+     <div class="warning_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>
+     <div class="valid_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>
+     <div class="error_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>  
+    -->
+      
+     
+     
+         <div class="form">
+         	<form action="<{$receiver}>?do=UtilizaRepuesto" method="post" class="niceform" id="usa_repuesto">
+         		<input type="hidden" name="id" value="<{$id}>" />
+         		<input type="hidden" id="sel_motivo" value="<{$motivo}>" />
+         		
+                <fieldset>
+                    <dl>
+                        <dt><label for="plataforma">Plataforma:</label></dt>
+                        <dd><input type="text" name="ur_plataforma" id="plataforma" size="88.8" value="<{$ur_plataforma}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="region">Regi&oacute;n:</label></dt>
+                        <dd><input type="text" name="ur_region" id="region" size="88.8" value="<{$ur_region}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="ciudad">Ciudad:</label></dt>
+                        <dd><input type="text" name="ur_ciudad" id="ciudad" size="88.8" value="<{$ur_ciudad|htmlentities}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="re">R/E:</label></dt>
+                        <dd><input type="text" name="ur_re" id="re" size="88.8" value="<{$ur_re|htmlentities}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="fabricante">Fabricante:</label></dt>
+                        <dd><input type="text" name="ur_fabricante" id="fabricante" size="88.8" value="<{$ur_fabricante}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="modelo">Modelo:</label></dt>
+                        <dd><input type="text" name="ur_modelo" id="modelo" size="88.8" value="<{$ur_modelo|htmlentities}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="serial">Serial:</label></dt>
+                        <dd><input type="text" name="ur_serial" id="serial" size="88.8" value="<{$ur_serial}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="nombre">Nombre:</label></dt>
+                        <dd><input type="text" name="ur_nombre" id="nombre" size="88.8" value="<{$ur_nombre}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="sla">SLA:</label></dt>
+                        <dd><input type="text" name="ur_sla" id="sla" size="88.8" value="<{$ur_sla}>" disabled="disabled" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="posicion">Posici&oacute;n:</label></dt>
+                        <dd><input type="text" name="posicion" id="posicion" size="88.8" value="<{$posicion|htmlentities}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="ip">IP:</label></dt>
+                        <dd><input type="text" name="ip" id="ip" size="88.8" value="<{$ip}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="consola_activa">Consola&nbsp;Activa:</label></dt>
+                        <dd><input type="text" name="consola_activa" id="consola_activa" size="88.8" value="<{$consola_activa}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="consola_standby">Consola&nbsp;Standby:</label></dt>
+                        <dd><input type="text" name="consola_standby" id="consola_standby" size="88.8" value="<{$consola_standby}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="ubicacion">Ubicaci&oacute;n:</label></dt>
+                        <dd><input type="text" name="ubicacion" id="ubicacion" size="88.8" value="<{$ubicacion|htmlentities}>" /></dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label for="razon">Raz&oacute;n:</label></dt>
+                        <dd>
+                            <select size="1" name="motivo" id="motivo" value="<{$motivo}>">
+                                <option value="">Seleccione Raz&oacute;n</option>
+
+					    		<!--
+					    		<option value="1">Boleta de Red</option>
+					    		<option value="2">Trabajo Programado</option>
+					    		-->
+					    		
+						    	<{foreach from=$motivos item=motivo}>
+						    	
+						    		<option value="<{$motivo.id}>"><{$motivo.descripcion}></option>
+						            
+						        <{/foreach}>
+					    		
+
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="valor">Referencia raz&oacute;n *:</label></dt>
+                        <dd><input type="text" class="number_input" name="valor" id="valor" size="88.8" value="<{$valor}>" /></dd>
+                    </dl>
+	                <{if $ur_cantidad > 1}>
+	                    <dl>
+	                        <dt><label for="disponible">Disponibles:</label></dt>
+	                        <dd><input type="text" name="disponible" id="disponible" size="88.8" value="<{$ur_cantidad}>" disabled="disabled" /></dd>
+	                    </dl>
+	                    <dl>
+	                        <dt><label for="retiro">Retiro *:</label></dt>
+	                        <dd><input type="text" class="number_input" name="retiro" id="retiro" size="88.8" value="<{$retiro}>" /></dd>
+	                    </dl>
+					<{/if}>
+                    
+                    <!--
+                    <dl>
+                        <dt><label for="comments">Comentarios:</label></dt>
+                        <dd><textarea name="comments" id="comments" rows="5" cols="36"></textarea></dd>
+                    </dl>
+                    -->
+                    <dl class="submit">
+                    	<input type="submit" name="submit" id="submit" value="Grabar" />
+                    </dl>
+                    
+                    <{if isset($exito)}>
+		                <{if $exito}>
+							<div class="valid_box">
+							   <{$status_message}>
+							</div>
+	
+						<{else}>
+	                    
+							<div class="error_box">
+							   <{$status_message}>
+							</div>
+						
+						<{/if}>
+					<{/if}>
+                     
+                    <dl>
+                    	<label for="message" class="error"><{$message}></label>
+                    </dl>
+                     
+                    
+                	
+                </fieldset>
+                
+         	</form>
+         </div>  
+      
+     
+     </div><!-- end of right content-->
+            
+                    
+  </div>   <!--end of center content -->               
+                    
+                    
+    
+    
+    <div class="clear"></div>
+    </div> <!--end of main content-->
+	
+    <{include file="footer.html"}>
+
+</div>		
+</body>
+</html>

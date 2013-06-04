@@ -1,0 +1,1240 @@
+<{include file="top.html"}>
+	
+<script type="text/javascript">
+
+	$().ready(function() {
+        <{if isset($exito)}>
+	        <{if $exito}>
+				var choices;
+				var data;
+				var sel_plataforma;
+				var sel_region;
+				var sel_ciudad;
+				var sel_fabricante;
+				var sel_motivo;
+				var sel_usuario;
+				var sel_tipo;
+			
+				// selecciono los itemes elegidos pre submit
+				
+				sel_tipo = $('#sel_tipo').val();
+				
+				if (sel_tipo != 0) { 
+					$('#tipo').val(sel_tipo);
+				}
+
+				sel_plataforma = $('#sel_plataforma').val();
+				
+				if (sel_plataforma != 0) { 
+					$('#plataforma').val(sel_plataforma);
+				}
+				
+				sel_region = $('#sel_region').val();
+				
+				if (sel_region != 0) {
+					$('#region').val(sel_region);
+
+					// cargo las ciudades presentes presubmit; las opciones se graban en la sesion en comando Ajax
+					choices = '';
+		            choices += "<option value=\"\" selected=\"selected\">Ciudad</option>";
+
+					<{if isset($options_ciudades)}>	
+						data = <{$options_ciudades}>;
+			             
+		
+			            $.each(data.ciudades, function(index, ciudad) {
+			                choices += "<option value=\"" + ciudad.id.toString() + "\">";
+			                choices += ciudad.descripcion.toString();
+			                choices += "</option>";
+			            });
+		            <{/if}>
+		            
+					// elimino el contenido del control
+		            $('#ciudad').text('');
+		            // agrego las opciones al combobox
+		            $(choices).appendTo('#ciudad');
+					// dejo seleccionado el mismo pre submit
+					
+					sel_ciudad = $('#sel_ciudad').val();
+					
+					if (sel_ciudad != 0) {
+			            $('#ciudad').val(sel_ciudad);
+		
+						// cargo las R/E presentes presubmit; las opciones se graban en la sesion en comando Ajax
+						choices = '';
+			            choices += "<option value=\"\" selected=\"selected\">R/E</option>";
+		
+						<{if isset($options_res)}>	
+							data = <{$options_res}>;
+			
+				            $.each(data.res, function(index, re) {
+				                choices += "<option value=\"" + re.id.toString() + "\">";
+				                choices += re.descripcion.toString();
+				                choices += "</option>";
+				            });
+			            <{/if}>
+			            
+			            $('#re').text('');
+			            $(choices).appendTo('#re');
+		
+			            $('#re').val($('#sel_re').val());
+		            }
+				}
+
+				sel_fabricante = $('#sel_fabricante').val();
+				
+				if (sel_fabricante != 0) {
+				
+					$('#fabricante').val(sel_fabricante);
+	
+					// cargo los modelos presentes presubmit; las opciones se graban en la sesion en comando Ajax
+					choices = '';
+		            choices += "<option value=\"\" selected=\"selected\">Modelo</option>";
+	
+					<{if isset($options_modelos)}>	
+						data = <{$options_modelos}>;
+			             	
+			            $.each(data.modelos, function(index, modelo) {
+			                choices += "<option value=\"" + modelo.id.toString() + "\">";
+			                choices += modelo.descripcion.toString();
+			                choices += "</option>";
+			            });
+		            <{/if}>
+		            
+		            //choices += "</select>";
+	
+		            //alert(choices.toString());
+	
+		            $('#modelo').text('');
+		            $(choices).appendTo('#modelo');
+	
+		            $('#modelo').val($('#sel_modelo').val());
+	            }
+	            
+				sel_motivo = $('#sel_motivo').val();
+				
+				if (sel_motivo != 0) { 
+					$('#motivo').val(sel_motivo);
+					$('#id_razon').parent().parent().show();
+				}
+				else {
+					$('#id_razon').parent().parent().hide();
+				}
+	            
+				sel_usuario = $('#sel_usuario').val();
+				
+				if (sel_usuario != 0) { 
+					$('#usuario').val(sel_usuario);
+				}
+
+			<{/if}>
+			
+			//$('#id_razon').parent().parent().parent().show();
+			
+		<{else}>
+			$('#ciudad').attr('disabled', true);
+	
+			$('#re').attr('disabled', true);
+	
+			$('#modelo').attr('disabled', true);
+			
+			$('#id_razon').attr('disabled', true);
+			
+			$('#id_razon').parent().parent().hide();
+			
+		<{/if}>
+
+			$('#region').change(function() {
+				// al cambiar la region por algo valido, debo cargar en el combo de ciudad las que le pertenecen
+				// si se selecciona 'Region', debo descargar ciudades y R/E's
+				var data;
+				var opt;
+				var choices;
+				var sel = $(this).val().toString();
+				
+				// alert(sel);
+				
+				if ($(this).hasClass('error')) {
+					$(this).removeClass('error');
+					$('.error').remove();
+				}
+
+				if (sel == 0) {
+					// elegido titulo
+					
+					// genero opciones de combo de ciudades
+		            choices = '';
+		            choices += "<option value=\"\" selected=\"selected\">Ciudad</option>";
+
+					// deshabilito select (y niceform) de ciudades
+					$('#ciudad').attr('disabled', true);
+					
+					// muestro select niceform de R/E
+					$('#re').parent().parent().show();
+					
+				}
+				else {
+					// region valida del combo
+									
+					// genero opciones de select ciudad
+		            $.ajax({
+		                async: false,
+		                url: "<{$receiver}>?do=Ajax&req=getCiudades&id_region=" + sel,
+		                type: 'GET',
+		                dataType: 'json',
+		                error: function(xhr){
+		                 	if (xhr.status == 401) {
+		                 		// sesion expirada, redirijo a login
+		                 		window.location = "<{$receiver}>";
+		                 	}
+		                 	else {
+		                 		// error en ajax
+		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+		                 	}
+		                },
+		                success: function(output_string){
+		                	//alert(output_string);
+		                    data = output_string;
+		                }
+		            });
+
+		            //alert(data.ciudades);
+		            
+					choices = '';
+		            //var choices = "<select size=\"1\" name=\"ciudad\" id=\"ciudad\" >"; 
+		            choices += "<option value=\"\" selected=\"selected\">Ciudad</option>";
+
+		            $.each(data.ciudades, function(index, ciudad) {
+		                choices += "<option value=\"" + ciudad.id.toString() + "\">";
+		                choices += ciudad.descripcion.toString();
+		                choices += "</option>";
+		            });
+		            
+		            //choices += "</select>";
+
+		            //alert(choices.toString());
+		            
+					// habilito select (y niceform) de ciudades
+					$('#ciudad').attr('disabled', false);
+
+		            // muestro select niceform de R/E
+		            $('#re').parent().parent().show();
+				}
+				
+				// agrego las opciones generadas al select de ciudades
+	            $('#ciudad').text('');
+	            $(choices).appendTo('#ciudad');
+	            
+	            // re-genero niceform de select ciudades
+	            
+	            // elimino el nodo
+	            $('#nfSelectOptions3').remove();
+
+				// lo re-creo
+	            opt = document.createElement('ul');
+
+				$(opt)
+					.attr({id: 'nfSelectOptions3'})
+					.addClass('NFSelectOptions');
+			
+				//get select's options and add to options div
+				$('#ciudad option').each(function(k) {
+					var optionHolder = document.createElement('li');
+					var optionLink = document.createElement('a');
+					var optionTxt = document.createTextNode(this.text);
+					
+					$(optionLink)
+						//.addClass('NFOptionActive')
+						.attr({id: 'nfSelectText'+k})
+						.attr({href:'#'})
+						.css({cursor:'pointer'})
+						.append(optionTxt)
+						.bind('click', {who: 3, id:'ciudad', option:k, select:3}, function(e){
+							//self.showOptions(e);
+							jQuery.NiceJForms.selectMe('ciudad', k, 3);
+							jQuery.NiceJForms.hideOptions(e);
+						});
+					
+					$(optionHolder).append(optionLink);
+					$(opt).append(optionHolder);
+					
+					//check for pre-selected items
+					if($('#ciudad').children()[k].selected) {
+						// show selected option on select caption
+						$('#nfSelectRight3').text($('#ciudad').children()[k].text);
+						
+						// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+					}
+				});
+
+				$('#nfSelectTarget3').append(opt);
+	            
+				// solamente dejo el titulo en select R/E
+	            choices = '';
+	            choices += "<option value=\"\" selected=\"selected\">R/E</option>";
+	            
+	            // agrego choice a select R/E
+	            $('#re').text('');
+	            $(choices).appendTo('#re');
+	            
+	            // re-genero niceform de select R/E
+	            
+	            // elimino nodo
+	            $('#nfSelectOptions4').remove();
+
+				// lo re-creo
+	            opt = document.createElement('ul');
+
+				$(opt)
+					.attr({id: 'nfSelectOptions4'})
+					.addClass('NFSelectOptions');
+			
+				//get select's options and add to options div
+				$('#re option').each(function(k) {
+					var optionHolder = document.createElement('li');
+					var optionLink = document.createElement('a');
+					var optionTxt = document.createTextNode(this.text);
+					
+					$(optionLink)
+						//.addClass('NFOptionActive')
+						.attr({id: 'nfSelectText'+k})
+						.attr({href:'#'})
+						.css({cursor:'pointer'})
+						.append(optionTxt)
+						.bind('click', {who: 4, id:'ciudad', option:k, select:4}, function(e){
+							//self.showOptions(e);
+							jQuery.NiceJForms.selectMe('ciudad', k, 4);
+							jQuery.NiceJForms.hideOptions(e);
+						});
+					
+					$(optionHolder).append(optionLink);
+					$(opt).append(optionHolder);
+					
+					//check for pre-selected items
+					if($('#re').children()[k].selected) {
+						// show selected option on select caption
+						$('#nfSelectRight4').text($('#re').children()[k].text);
+						
+						// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+					}
+				});
+
+				$('#nfSelectTarget4').append(opt);
+
+				// deshabilito select (y niceform) de R/E
+				$('#re').attr('disabled', true);
+			}); // end change
+
+			$('#ciudad').change(function() {
+				// al cambiar la ciudad debo cargar en el combo de r/e las que le pertenecen
+				var data;
+				var sel = $('#ciudad').val().toString();
+				
+				// alert(sel);
+				
+				if ($(this).hasClass('error')) {
+					$(this).removeClass('error');
+					$('.error').remove();
+				}
+
+				if (sel == 0) {
+					// seleccionado titulo
+		            
+		            // genero opciones sel select R/E
+		            choices = '';
+		            choices += "<option value=\"\" selected=\"selected\">R/E</option>";
+					
+					// deshabilito select (y niceform) de R/E
+					$('#re').attr('disabled', true);
+					
+				}
+				else {
+					// ciudad valida en combo
+									
+					// genero opciones para R/E
+		            $.ajax({
+		                async: false,
+		                url: "<{$receiver}>?do=Ajax&req=getRadioEstaciones&id_ciudad=" + sel,
+		                type: 'GET',
+		                dataType: 'json',
+		                error: function(xhr){
+		                 	if (xhr.status == 401) {
+		                 		// sesion expirada, redirijo a login
+		                 		window.location = "<{$receiver}>";
+		                 	}
+		                 	else {
+		                 		// error en ajax
+		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+		                 	}
+		                },
+		                success: function(output_string){
+		                	//alert(output_string);
+		                    data = output_string;
+		                }
+		            });
+
+		            //alert(data.ciudades);
+		            
+					var choices = '';
+		            //var choices = "<select size=\"1\" name=\"ciudad\" id=\"ciudad\" >"; 
+		            choices += "<option value=\"\" selected=\"selected\">R/E</option>";
+
+		            $.each(data.res, function(index, re) {
+		                choices += "<option value=\"" + re.id.toString() + "\">";
+		                choices += re.descripcion.toString();
+		                choices += "</option>";
+		            });
+		            
+		            //choices += "</select>";
+
+		            //alert(choices.toString());
+
+					// habilito select (y niceform) R/E
+					$('#re').attr('disabled', false);
+					
+		            // muestro select niceform de R/E
+		            $('#re').parent().parent().show();
+				}
+				
+				// agrego las opciones generadas a select R/E
+	            $('#re').text('');
+	            $(choices).appendTo('#re');
+				
+				// re-genero select niceform R/·
+				
+				// elimino nodo
+	            $('#nfSelectOptions4').remove();
+
+				// lo re-creo
+	            var opt = document.createElement('ul');
+
+				$(opt)
+					.attr({id: 'nfSelectOptions4'})
+					.addClass('NFSelectOptions');
+			
+				//get select's options and add to options div
+				$('#re option').each(function(k) {
+					var optionHolder = document.createElement('li');
+					var optionLink = document.createElement('a');
+					var optionTxt = document.createTextNode(this.text);
+					
+					$(optionLink)
+						//.addClass('NFOptionActive')
+						.attr({id: 'nfSelectText'+k})
+						.attr({href:'#'})
+						.css({cursor:'pointer'})
+						.append(optionTxt)
+						.bind('click', {who: 4, id:'re', option:k, select:4}, function(e){
+							//self.showOptions(e);
+							jQuery.NiceJForms.selectMe('re', k, 4);
+							jQuery.NiceJForms.hideOptions(e);
+						});
+					
+					$(optionHolder).append(optionLink);
+					$(opt).append(optionHolder);
+					
+					//check for pre-selected items
+					if($('#re').children()[k].selected) {
+						// show selected option on select caption
+						$('#nfSelectRight4').text($('#re').children()[k].text);
+						
+						// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+					}
+				});
+
+				$('#nfSelectTarget4').append(opt);
+
+			}); // end change
+
+			$('#fabricante').change(function() {
+				// al cambiar el fabricante debo cargar en el combo de modelos los que le pertenecen
+				var data;
+				var sel = $('#fabricante').val().toString();
+				
+				// alert(sel);
+				
+				if ($(this).hasClass('error')) {
+					$(this).removeClass('error');
+					$('.error').remove();
+				}
+
+				if (sel == 0) {
+					// seleccionado titulo
+		            
+		            // genero opcion para select modelo
+		            choices = '';
+		            choices += "<option value=\"\" selected=\"selected\">Modelo</option>";
+
+					// deshabilito select (y niceform) de modelo
+					$('#modelo').attr('disabled', true);
+					
+					// muestro select niceform modelo
+					$('#modelo').parent().parent().show();
+				}
+				else {
+					// fabricante valido en combo
+					
+					// genero opciones de modelo
+		            $.ajax({
+		                async: false,
+		                url: "<{$receiver}>?do=Ajax&req=getModelos&id_fabricante=" + sel,
+		                type: 'GET',
+		                dataType: 'json',
+		                error: function(xhr){
+		                 	if (xhr.status == 401) {
+		                 		// sesion expirada, redirijo a login
+		                 		window.location = "<{$receiver}>";
+		                 	}
+		                 	else {
+		                 		// error en ajax
+		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+		                 	}
+		                },
+		                success: function(output_string){
+		                	//alert(output_string);
+		                    data = output_string;
+		                }
+		            });
+
+		            //alert(data.modelos);
+		            
+					var choices = '';
+		            //var choices = "<select size=\"1\" name=\"ciudad\" id=\"ciudad\" >"; 
+		            choices += "<option value=\"\" selected=\"selected\">Modelo</option>";
+
+		            $.each(data.modelos, function(index, modelo) {
+		                choices += "<option value=\"" + modelo.id.toString() + "\">";
+		                choices += modelo.descripcion.toString();
+		                choices += "</option>";
+		            });
+		            
+		            //choices += "</select>";
+
+		            //alert(choices.toString());
+
+					// habilito select (y niceform) modelo
+					$('#modelo').attr('disabled', false);
+					
+		            // muestro select niceform de modelo
+		            $('#modelo').parent().parent().show();
+
+				}
+				
+				// agrego opciones a select modelo
+	            $('#modelo').text('');
+	            $(choices).appendTo('#modelo');
+				
+				// re-genero select niceform modelo
+				
+				// elimino el nodo 
+	            $('#nfSelectOptions6').remove();
+
+				// lo re-creo
+	            var opt = document.createElement('ul');
+
+				$(opt)
+					.attr({id: 'nfSelectOptions6'})
+					.addClass('NFSelectOptions');
+			
+				//get select's options and add to options div
+				$('#modelo option').each(function(k) {
+					var optionHolder = document.createElement('li');
+					var optionLink = document.createElement('a');
+					var optionTxt = document.createTextNode(this.text);
+					
+					$(optionLink)
+						//.addClass('NFOptionActive')
+						.attr({id: 'nfSelectText'+k})
+						.attr({href:'#'})
+						.css({cursor:'pointer'})
+						.append(optionTxt)
+						.bind('click', {who: 6, id:'modelo', option:k, select:6}, function(e){
+							//self.showOptions(e);
+							jQuery.NiceJForms.selectMe('modelo', k, 6);
+							jQuery.NiceJForms.hideOptions(e);
+						});
+					
+					$(optionHolder).append(optionLink);
+					$(opt).append(optionHolder);
+					
+					//check for pre-selected items
+					if($('#modelo').children()[k].selected) {
+						// show selected option on select caption
+						$('#nfSelectRight6').text($('#modelo').children()[k].text);
+						
+						// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+					}
+				});
+
+				$('#nfSelectTarget6').append(opt);
+
+			}); // end change
+			
+			// texto en USER HELP DESK
+			$('.sidebar_box p').html('<{$user_help_desk}>');
+			
+	}); // end ready
+	
+	function detalleMovimiento(id_repuesto_movimiento) {
+		// consulto los detalles del movimiento
+		var data;
+		var str;
+		
+        $.ajax({
+             async: false,
+             url: "<{$receiver}>?do=Ajax&req=getMovimiento&id_repuesto_movimiento=" + id_repuesto_movimiento,
+             type: 'GET',
+             dataType: 'json',
+             error: function(xhr){
+              	if (xhr.status == 401) {
+             		// sesion expirada, redirijo a login
+             		window.location = "<{$receiver}>";
+             	}
+             	else {
+             		// error en ajax
+            	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+             	}
+             },
+             success: function(output_string){
+             	//alert(output_string);
+                 data = output_string;
+             }
+        });
+
+		str =
+			'<table>'+
+			'  <tr>'+
+			'    <th align="left">Tipo</th>'+
+			'    <td>'+data.tipo_repuesto_movimiento.descripcion+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Usuario</h>'+
+			'    <td>'+data.usuario.apellidos+', '+data.usuario.nombre+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Fecha</h>'+
+			'    <td>'+data.repuesto_movimiento.fecha+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Plataforma</h>'+
+			'    <td>'+data.repuesto.plataforma+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Regi&oacute;n</h>'+
+			'    <td>'+data.repuesto.region+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Ciudad</h>'+
+			'    <td>'+data.repuesto.ciudad+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">R/E</h>'+
+			'    <td>'+data.repuesto.radio_estacion+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Fabricante</h>'+
+			'    <td>'+data.repuesto.fabricante+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Modelo</h>'+
+			'    <td>'+data.repuesto.modelo+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Serial</h>'+
+			'    <td>'+data.repuesto.serial+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">SLA</h>'+
+			'    <td>'+data.repuesto.sla+'</td>'+
+			'  </tr>';
+		
+		if (data.tipo_repuesto_movimiento.descripcion == 'egreso') {
+			str +=
+			'  <tr>'+
+			'    <th align="left">Posici&oacute;n</h>'+
+			'    <td>'+data.repuesto.posicion+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">IP</h>'+
+			'    <td>'+data.repuesto.ip+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Consola Activa</h>'+
+			'    <td>'+data.repuesto.consola_activa+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Consola Standby</h>'+
+			'    <td>'+data.repuesto.consola_standby+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Ubicaci&oacute;n</h>'+
+			'    <td>'+data.repuesto.ubicacion+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Motivo</h>'+
+			'    <td>'+data.motivo_movimiento.motivo+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">N&uacute;mero</h>'+
+			'    <td>'+data.motivo_movimiento.valor+'</td>'+
+			'  </tr>';
+		}
+		
+		str +=
+			'  <tr>'+
+			'    <th align="left">Cantidad</h>'+
+			'    <td>'+data.repuesto_movimiento.cantidad+'</td>'+
+			'  </tr>'+
+			'</table>';
+
+		$('#p1').html(str);
+		
+		$('#dialog').dialog('open');
+	}	
+
+
+</script>
+
+<script type="text/javascript" src="js/reporte_actividad.js"></script>
+
+</head>
+<body>
+<!-- the dialog contents -->
+<div id="dialog" title="Detalle de Movimiento">
+	<div id="p1">You've assigned the current celebrity a rating of 0 â€¦</div>
+</div>
+
+<div id="main_container">
+
+	<{include file="header.html"}>
+    
+    <div class="main_content">
+    
+    <{include file="upper_menu.html"}>              
+                    
+    <div class="center_content">  
+    
+    
+    
+    <div class="left_content">
+    
+    		<!--
+    
+    		<div class="sidebar_report1_form">
+	            <form action="<{$receiver}>?do=ReporteActividad" method="post" id="buscar" class="niceform">
+
+		            <fieldset>
+		            	<legend>Par&aacute;metros</legend>
+	                    <dl>
+	                        <label for="fecha_desde">Desde:</label>
+	                        <input type="text" name="fecha_desde" id="fecha_desde" size="8" value="<{$fecha_desde}>" />
+	                    </dl>
+	                    <dl>
+	                        <label for="fecha_hasta">Hasta:</label>
+	                        <input type="text" name="fecha_hasta" id="fecha_hasta" size="8" value="<{$fecha_hasta}>" />
+	                    	<br />
+						</dl>
+						<dl>
+							<input type="submit" name="submit" id="submit" value="Buscar" />
+						</dl>
+	                    
+			
+					</fieldset>
+	            </form>
+	        	
+            </div>
+    
+            -->
+            
+            <div class="sidebarmenu">
+            
+            	<!--
+            	<a class="menuitem submenuheader" href="" >Sidebar Settings</a>
+                <div class="submenu">
+                    <ul>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    </ul>
+                </div>
+                 
+                <a class="menuitem submenuheader" href="">Add new products</a>
+                <div class="submenu">
+                    <ul>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    </ul>
+                </div>
+                
+                <a class="menuitem" href="">User Reference</a>
+                -->
+                <!--
+                <a class="menuitem" href="">Blue button</a>
+                
+                <a class="menuitem_green" href="">Green button</a>
+                
+                <a class="menuitem_red" href="">Red button</a>
+                -->
+                <a class="menuitem" href="<{$receiver}>?do=DisplayHome">Buscar Repuesto</a>
+                
+				<{if $puedeAgregar}>
+					<a class="menuitem" href="<{$receiver}>?do=AgregaRepuesto">Agregar Repuesto Manual</a>
+				<{/if}>
+                
+				<{if $puedeAgregar}>
+					<a class="menuitem" href="<{$receiver}>?do=AgregaRepuestoMasivo">Agregar Repuesto Masivo</a>
+				<{/if}>
+ 				
+                <a class="menuitem" href="<{$receiver}>?do=ReporteExistencias">Reporte Existencias</a>				
+                    
+            </div>
+            
+            <{include file="sidebar_box.html"}>
+            
+            <!--
+            
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h4>Important notice</h4>
+                <img src="images/notice.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h5>Download photos</h5>
+                <img src="images/photo.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>  
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h3>To do List</h3>
+                <img src="images/info.png" alt="" title="" class="sidebar_icon_right" />
+                <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                 <li>Lorem ipsum dolor sit ametconsectetur <strong>adipisicing</strong> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur <a href="#">adipisicing</a> elit.</li>
+                   <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                    <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                     <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                </ul>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            --> 
+    
+    </div>  
+    
+    <div class="right_content">            
+        
+    	<h2>Reporte de Actividad</h2>
+                    
+ 		<div class="form">
+
+         	<form action="<{$receiver}>?do=ReporteActividad" method="post" id="edita_usuario" class="niceform">
+         		<input type="hidden" name="dummy" value="dummy" />
+				<input type="hidden" name="sel_tipo" id="sel_tipo" value="<{$tipo}>" />
+				<input type="hidden" name="sel_plataforma" id="sel_plataforma" value="<{$plataforma}>" />
+				<input type="hidden" name="sel_region" id="sel_region" value="<{$region}>" />
+				<input type="hidden" name="sel_ciudad" id="sel_ciudad" value="<{$ciudad}>" />
+				<input type="hidden" name="sel_re" id="sel_re" value="<{$re}>" />
+				<input type="hidden" name="sel_fabricante" id="sel_fabricante" value="<{$fabricante}>" />
+				<input type="hidden" name="sel_modelo" id="sel_modelo" value="<{$modelo}>" />
+				<input type="hidden" name="sel_motivo" id="sel_motivo" value="<{$motivo}>" />
+				<input type="hidden" name="sel_id_razon" id="sel_id_razon" value="<{$id_razon}>" />
+				<input type="hidden" name="sel_usuario" id="sel_usuario" value="<{$usuario}>" />
+         		
+                <fieldset>
+<!--                	<legend>Par&aacute;metros</legend>-->
+                    <dl>
+                        <dt><label for="tipo">Tipo:</label></dt>
+                        <dd>
+                            <select size="1" name="tipo" id="tipo" value="<{$tipo}>">
+                                <option value="">Tipo</option>
+
+						    	<{foreach from=$tipos item=tipo}>
+						    	
+						    		<option value="<{$tipo.id}>"><{$tipo.descripcion}></option>
+						            
+						        <{/foreach}>
+
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="fecha_desde">Fecha Desde:</label></dt>
+                        <dd><input type="text" name="fecha_desde" id="fecha_desde" size="88.8" value="<{$fecha_desde}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="fecha_hasta">Fecha Hasta:</label></dt>
+                        <dd><input type="text" name="fecha_hasta" id="fecha_hasta" size="88.8" value="<{$fecha_hasta}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="plataforma">Plataforma:</label></dt>
+                        <dd>
+                            <select size="1" name="plataforma" id="plataforma" value="<{$plataforma}>">
+                                <option value="">Plataforma</option>
+
+						    	<{foreach from=$plataformas item=plataforma}>
+						    	
+						    		<option value="<{$plataforma.id}>"><{$plataforma.descripcion}></option>
+						            
+						        <{/foreach}>
+
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="region">Regi&oacute;n:</label></dt>
+                        <dd>
+                            <select size="1" name="region" id="region" value="<{$region}>">
+                                <option value="">Regi&oacute;n</option>
+
+						    	<{foreach from=$regiones item=region}>
+						    	
+						    		<option value="<{$region.id}>"><{$region.compuesto}></option>
+						            
+						        <{/foreach}>
+
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="ciudad">Ciudad:</label></dt>
+                        <dd>
+                            <select size="1" name="ciudad" id="ciudad" value="<{$ciudad}>">
+                                <option value="">Ciudad</option>
+                                
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="re">R/E:</label></dt>
+                        <dd>
+                            <select size="1" name="re" id="re" value="<{$re}>">
+                                <option value="">R/E</option>
+                                
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="fabricante">Fabricante:</label></dt>
+                        <dd>
+                            <select size="1" name="fabricante" id="fabricante" value="<{$fabricante}>">
+                                <option value="">Fabricante</option>
+
+						    	<{foreach from=$fabricantes item=fabricante}>
+						    	
+						    		<option value="<{$fabricante.id}>"><{$fabricante.descripcion}></option>
+						            
+						        <{/foreach}>
+
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="modelo">Modelo:</label></dt>
+                        <dd>
+                            <select size="1" name="modelo" id="modelo" value="<{$modelo}>">
+                                <option value="">Modelo</option>
+                                
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                   
+                    <dl>
+                        <dt><label for="razon">Motivo:</label></dt>
+                        <dd>
+                            <select size="1" name="motivo" id="motivo" value="">
+                                <option value="">Motivo</option>
+
+						    	<{foreach from=$motivos item=motivo}>
+						    	
+						    		<option value="<{$motivo.id}>"><{$motivo.descripcion}></option>
+						            
+						        <{/foreach}>
+
+                                
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="id_razon">N&uacute;mero:</label></dt>
+                        <dd><input type="text" name="id_razon" id="id_razon" size="88.8" value="<{$id_razon}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="usuario">Usuario:</label></dt>
+                        <dd>
+                            <select size="1" name="usuario" id="usuario" value="">
+                                <option value="">Usuario</option>
+
+						    	<{foreach from=$usuarios item=usuario}>
+						    	
+						    		<option value="<{$usuario.id}>"><{$usuario.nombre_usuario}></option>
+						            
+						        <{/foreach}>
+
+                                
+                            </select>
+                        </dd>
+                    </dl>
+
+                    <dl class="submit">
+                    	<input type="submit" name="submit" id="submit" value="Buscar" />
+                    </dl>
+                    <!--
+                    <{if isset($exito)}>
+                    	<{if $exito}>
+							<div class="valid_box">
+							   <{$status_message}>
+							</div>
+	
+							<script type="text/javascript">
+								
+							</script>
+		
+                    	<{else}>
+							<div class="error_box">
+							   <{$status_message}>
+							</div>
+						<{/if}>
+					<{/if}>
+					-->
+                     
+                    <dl>
+                    	<label for="message" class="error"><{$message}></label>
+                    </dl>
+                     
+                    
+                	
+               	</fieldset>
+                
+        	</form>
+        </div>  
+                    
+	<table id="rounded-corner" summary="2007 Major IT Companies' Profit">
+    	<thead>
+	    	<tr>
+				<th scope="col" class="rounded-company">Usuario</th>
+				<th scope="col" class="rounded">Fecha</th>
+	            <th scope="col" class="rounded">Plat</th>
+	            <th scope="col" class="rounded">Fab</th>
+	            <th scope="col" class="rounded">Modelo</th>
+	            <th scope="col" class="rounded">Regi&oacute;n</th>
+	            <th scope="col" class="rounded">Ciudad</th>
+	            <th scope="col" class="rounded">R/E</th>
+	            <th scope="col" class="rounded">Tipo</th>
+	            <th scope="col" class="rounded-q4">Detalle</th>
+	        </tr>
+    	</thead>
+        <tfoot>
+	    	<tr>
+	    		<{if isset($exito)}>
+	    			<{if $exito}>
+	        			<td colspan="9" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$row_number}> registros.</em></td>
+	        		<{/if}>
+	        	<{else}>
+	        		<td colspan="9" class="rounded-foot-left"><em>&nbsp;</em></td>
+				<{/if}>
+				<td class="rounded-foot-right">&nbsp;</td>
+	        </tr>
+    	</tfoot>
+    	<tbody>
+	    	<!--
+	    	<block start="resultBlock"/>
+	    	
+	    	<loop start="search_result"/>
+	    	<tr>
+	            <td>{search_result.plataforma}</td>
+	            <td>{search_result.fabricante}</td>
+	            <td>{search_result.modelo}</td>
+	            <td>{search_result.radio_estacion}</td>
+	            <td>{search_result.ciudad}</td>
+	            <td>{search_result.region}</td>
+				
+				<td>
+					<block start="puedeUtilizar"/>
+						<a href="{t_receiver.main}?do=UtilizaRepuesto&id={search_result.id}"><img src="images/user_edit.png" alt="Utiliza Repuesto" title="" border="0" /></a>
+					<block end="puedeUtilizar"/>
+		            
+					<block start="puedeEliminar"/>
+						<a href="{t_receiver.main}?do=EliminaRepuesto&id={search_result.id}" class="ask"><img src="images/trash.png" alt="Elimina Repuesto" title="" border="0" /></a>
+					<block end="puedeEliminar"/>
+	            </td>
+	        </tr>
+	        <loop end="search_result"/>
+	        
+	        <block end="resultBlock"/>
+	        -->
+	        <{foreach from=$search_result item=item}>
+	        <tr>	
+	            <td><{$item.nombre_usuario}></td>
+	            <td><{$item.fecha}></td>
+	            <td><{$item.plataforma}></td>
+	            <td><{$item.fabricante}></td>
+	            <td><{$item.modelo|htmlentities}></td>
+	            <td><{$item.region}></td>
+	            <td><{$item.ciudad|htmlentities}></td>
+	            <td><{$item.radio_estacion|htmlentities}></td>
+	            <td><{$item.tipo}></td>
+				
+				<td>
+<!--					<a href="<{$receiver}>?do=DetalleMovimiento&id_repuesto=<{$item.id_repuesto}>&id_tipo_repuesto_movimiento=<{$item.id_tipo_repuesto_movimiento}>"><img src="images/user_edit.png" alt="Detalle" title="" border="0" /></a>-->
+						<a href="#" onClick="detalleMovimiento(<{$item.id}>); return false"><img src="images/detail.png" alt="Detalle" title="" border="0" /></a>
+	            </td>
+	        </tr>
+        	<{/foreach}>                    
+        
+    	</tbody>
+	</table>
+	<!--
+	<block start="puedeAgregar"/>
+		<a href="{t_receiver.main}?do=AgregaRepuesto" class="bt_green"><span class="bt_green_lft"></span><strong>Agregar</strong><span class="bt_green_r"></span></a>
+	<block end="puedeAgregar"/>
+	-->
+	 
+    <!--
+     <a href="#" class="bt_blue"><span class="bt_blue_lft"></span><strong>View all items from category</strong><span class="bt_blue_r"></span></a>
+     <a href="#" class="bt_red"><span class="bt_red_lft"></span><strong>Delete items</strong><span class="bt_red_r"></span></a> 
+     
+     
+        <div class="pagination">
+        <span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a>…<a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>
+        </div> 
+     -->
+     <!--
+     <h2>Warning Box examples</h2>
+      
+     <div class="warning_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>
+     <div class="valid_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>
+     <div class="error_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>  
+    -->
+    <!--  
+     <h2>Nice Form example</h2>
+     
+         <div class="form">
+         <form action="" method="post" class="niceform">
+         
+                <fieldset>
+                    <dl>
+                        <dt><label for="email">Email Address:</label></dt>
+                        <dd><input type="text" name="" id="" size="88.8" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="password">Password:</label></dt>
+                        <dd><input type="text" name="" id="" size="88.8" /></dd>
+                    </dl>
+                    
+                    
+                    <dl>
+                        <dt><label for="gender">Select categories:</label></dt>
+                        <dd>
+                            <select size="1" name="gender" id="">
+                                <option value="">Select option 1</option>
+                                <option value="">Select option 2</option>
+                                <option value="">Select option 3</option>
+                                <option value="">Select option 4</option>
+                                <option value="">Select option 5</option>
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="interests">Select tags:</label></dt>
+                        <dd>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Web design</label>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Business</label>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Simple</label>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Clean</label>
+                        </dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label for="color">Select type</label></dt>
+                        <dd>
+                            <input type="radio" name="type" id="" value="" /><label class="check_label">Basic</label>
+                            <input type="radio" name="type" id="" value="" /><label class="check_label">Medium</label>
+                            <input type="radio" name="type" id="" value="" /><label class="check_label">Premium</label>
+                        </dd>
+                    </dl>
+                    
+                    
+                    
+                    <dl>
+                        <dt><label for="upload">Upload a File:</label></dt>
+                        <dd><input type="file" name="upload" id="upload" /></dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label for="comments">Message:</label></dt>
+                        <dd><textarea name="comments" id="comments" rows="5" cols="36"></textarea></dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label></label></dt>
+                        <dd>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">I agree to the <a href="#">terms &amp; conditions</a></label>
+                        </dd>
+                    </dl>
+                    
+                     <dl class="submit">
+                    <input type="submit" name="submit" id="submit" value="Submit" />
+                     </dl>
+                     
+                     
+                    
+                </fieldset>
+                
+         </form>
+         </div>  
+      -->
+     
+     </div><!-- end of right content-->
+            
+                    
+  </div>   <!--end of center content -->               
+                    
+                    
+    
+    
+    <div class="clear"></div>
+    </div> <!--end of main content-->
+	
+    
+    <{include file="footer.html"}>
+
+</div>		
+</body>
+</html>

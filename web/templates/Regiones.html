@@ -1,0 +1,586 @@
+<{include file="top.html"}>
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+			$('.confirm_delete').click(function(e) {
+				var self = this;
+				
+				var id_region = $(this).attr('href');
+
+				e.preventDefault();
+				
+			    if($(this).next('div.question').length <= 0)  
+			        $(this).after('<div class="question">Est&aacute; seguro?<br> <span class="yes">S&iacute;</span><span class="cancel">Cancelar</span></div>');  
+				
+				$(this).next('.question').animate({opacity: 1}, 300);
+				
+				$('.yes').bind('click', function(){
+					var data;
+					var str;
+					
+			        $.ajax({
+			             async: false,
+			             url: "<{$receiver}>?do=Ajax&req=delRegion&id_region=" + id_region,
+			             type: 'GET',
+			             dataType: 'json',
+			             error: function(xhr){
+		                 	if (xhr.status == 401) {
+		                 		// sesion expirada, redirijo a login
+		                 		window.location = "<{$receiver}>";
+		                 	}
+		                 	else {
+		                 		// error en ajax
+		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+		                 	}
+			             },
+			             success: function(output_string){
+			             	//alert(output_string);
+			                 data = output_string;
+			             }
+			        });
+			
+			        if (data.respuesta == '1') {
+			        	$(self).parent().parent().hide();
+			        }
+				});
+		
+				$('.cancel').bind('click', function(){
+					$(this).parents('.question').fadeOut(300, function() {
+						$(this).remove();
+					});
+				});
+				
+			}); // end function
+
+			// texto en USER HELP DESK
+			$('.sidebar_box p').html('<{$user_help_desk}>');
+			
+			$('.edit').click(function() {
+				var id_region = $(this).attr('id');
+				var descripcion = $(this).parent().parent().children()[0].innerHTML;
+				var nombre = $(this).parent().parent().children()[1].innerHTML;
+				
+				popup(id_region, descripcion, nombre);
+			}); // end click 
+			
+			// if user clicked on button, process and close the dialog	
+			$('#btn-ok').click(function () {
+				// se edita la region 
+				var descripcion = $('#reg_descripcion').val().toString();
+				var nombre = $('#reg_nombre').val().toString();
+				var id_region = $('#id_region').val();
+				
+				var a = $('a#' + id_region.toString());
+				
+				var success = false;
+				
+				var message = '';
+				
+	            $.ajax({
+	                async: false,
+	                url: "<{$receiver}>?do=Ajax&req=regionDescripcionExistente&id=" + id_region + '&descripcion=' + descripcion,
+	                type: 'GET',
+	                dataType: 'json',
+	                error: function(xhr){
+	                 	if (xhr.status == 401) {
+	                 		// sesion expirada, redirijo a login
+	                 		window.location = "<{$receiver}>";
+	                 	}
+	                 	else {
+	                 		// error en ajax
+	                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+	                 	}
+	                },
+	                success: function(output_string){
+	                	//alert(output_string);
+	                    data = output_string;
+	                }
+	            });
+
+	            //alert(data.existe);
+	            
+	            if (data.respuesta == '1') {
+					message = 'La region '+descripcion+' ya existe en el sistema';
+					success = false;
+	            }
+	            else {
+	            	
+		            $.ajax({
+		                async: false,
+		                url: "<{$receiver}>?do=Ajax&req=regionNombreExistente&id=" + id_region + '&nombre=' + nombre,
+		                type: 'GET',
+		                dataType: 'json',
+		                error: function(xhr){
+		                 	if (xhr.status == 401) {
+		                 		// sesion expirada, redirijo a login
+		                 		window.location = "<{$receiver}>";
+		                 	}
+		                 	else {
+		                 		// error en ajax
+		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+		                 	}
+		                },
+		                success: function(output_string){
+		                	//alert(output_string);
+		                    data = output_string;
+		                }
+		            });
+	
+		            //alert(data.existe);
+		            
+		            if (data.respuesta == '1') {
+						message = 'La region '+nombre+' ya existe en el sistema';
+						success = false;
+		            }
+		            else {
+		            	// todo ok para agregar la nueva region 
+		            	
+			            $.ajax({
+			                async: false,
+			                url: "<{$receiver}>?do=Ajax&req=modificaRegion&id=" + id_region + '&descripcion=' + descripcion + '&nombre='+ nombre,
+			                type: 'GET',
+			                dataType: 'json',
+			                error: function(xhr){
+			                 	if (xhr.status == 401) {
+			                 		// sesion expirada, redirijo a login
+			                 		window.location = "<{$receiver}>";
+			                 	}
+			                 	else {
+			                 		// error en ajax
+			                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+			                 	}
+			                },
+			                success: function(output_string){
+			                	//alert(output_string);
+			                    data = output_string;
+			                }
+			            });
+		
+			            //alert(data.existe);
+			            
+			            if (data.respuesta == '1') {
+							message = 'La region '+descripcion+' no pudo modificarse';
+							success = false;
+			            }
+			            else {
+			            	// todo ok, cambio el texto en el listado
+			            	$(a).parent().parent().children()[0].innerHTML = descripcion;
+			            	
+			            	$(a).parent().parent().children()[1].innerHTML = nombre;
+			            	
+							$('#dialog-overlay, #dialog-box').hide();		
+							//return false;
+			            	
+			            }
+		            }
+	            }
+				
+	            if (!success) {
+	            	$('.error').text(message);
+	            }
+			});
+			
+			// if user clicked on button cancel, close the dialog	
+			$('#btn-cancel').click(function () {		
+				$('#dialog-overlay, #dialog-box').hide();		
+				return false;
+			});
+
+			// if user resize the window, call the same function again
+			// to make sure the overlay fills the screen and dialogbox aligned to center	
+			$(window).resize(function () {
+				
+				//only do it if the dialog box is not hidden
+				if (!$('#dialog-box').is(':hidden')) popup();		
+			});	
+			
+			
+	}); // end ready
+	/*
+	function edita_region(id_region, object) {
+        $.ajax({
+            async: false,
+            url: "<{$receiver}>?do=Ajax&req=getRegion&id=" + id_region,
+            type: 'GET',
+            dataType: 'json',
+            error: function(xhr){
+             	if (xhr.status == 401) {
+             		// sesion expirada, redirijo a login
+             		window.location = "<{$receiver}>";
+             	}
+             	else {
+             		// error en ajax
+            	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+             	}
+            },
+            success: function(output_string){
+            	//alert(output_string);
+                data = output_string;
+            }
+        });
+
+        //alert(data.existe);
+        
+        popup(id_region, data.region.descripcion, data.region.nombre);
+	}
+	*/
+</script>
+	
+<script type="text/javascript" src="js/gestions_usuarios.js"></script>
+
+<script type="text/javascript" src="js/dialog.js"></script>
+
+</head>
+<body>
+<!-- the dialog contents -->
+<div id="dialog" title="Detalle de Repuesto">
+	<div id="p1"></div>
+</div>
+
+<!-- the input dialog contents -->
+
+<div id="dialog-overlay"></div>
+<div id="dialog-box">
+	<div class="dialog-content">
+		<input type="hidden" id="id_region">
+		<!--<div id="dialog-message"></div>-->
+		<table>
+			<tr>
+				<td>
+                        <label for="reg_descripcion">Abreviaci&oacute;n:</label>
+                </td>
+                <td>
+                        <input type="text" id="reg_descripcion" size="30" />
+                </td>
+            </tr>
+			<tr>
+				<td>
+                        <label for="reg_nombre">Nombre:</label>
+                </td>
+                <td>
+                        <input type="text" id="reg_nombre" size="30" />
+                </td>
+            </tr>
+			<tr>
+				<td colspan=2>
+                        <label for="error" class="error" style="color: #ff0000; text-align: center;"></label>
+                </td>
+            </tr>
+        </table>
+        
+		<table>
+			<tr>
+				<td>
+					<a href="#" class="button" id="btn-ok">Ok</a>
+                </td>
+                <td>
+					<a href="#" class="button" id="btn-cancel">Cancelar</a>
+                </td>
+            </tr>
+        </table>
+		
+	</div>
+</div>
+
+<div id="main_container">
+
+	<{include file="header.html"}>
+    
+    <div class="main_content">
+    
+    <{include file="upper_menu.html"}>              
+                    
+    <div class="center_content">  
+    
+    
+    
+    <div class="left_content">
+    
+    		<div class="sidebar_search">
+	            <form action="<{$receiver}>?do=Regiones" method="post" id="buscar" "niceform">
+		            <!-- <input type="text" name="search_keyword" class="search_input" value="search keyword" onclick="this.value=''" /> -->
+		            <input type="text" name="search_keyword_region" id="search_keyword_region" class="search_input" value="<{$search_keyword_region}>" />
+		            <input type="image" class="search_submit" src="images/search.png" />
+	            </form>            
+            </div>
+    
+            <div class="sidebarmenu">
+            
+                <!--
+                <a class="menuitem submenuheader" href="">Plataformas</a>
+                <div class="submenu">
+                    <ul>                    
+                    
+			    	<loop start="plataformas"/>
+			    	
+			    		<li><a href="">{plataformas.descripcion}</a></li>
+			            
+			        <loop end="plataformas"/>
+                    
+                    </ul>
+                </div>
+                
+                <a class="menuitem submenuheader" href="" >Sidebar Settings</a>
+                <div class="submenu">
+                    <ul>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    </ul>
+                </div>
+                -->
+                <!-- 
+                <a class="menuitem submenuheader" href="">Add new products</a>
+                <div class="submenu">
+                    <ul>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    </ul>
+                </div>
+                
+                <a class="menuitem" href="">User Reference</a>
+                -->
+                <a class="menuitem" href="<{$receiver}>?do=DisplayHome">Buscar Repuesto</a>
+				<!--
+				<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
+					<a class="menuitem" href="#" onclick="javascript:agrega_region()">Agrega Regi&oacute;n</a>
+				<{/if}>
+                -->
+                <!--
+                <a class="menuitem" href="">Blue button</a>
+                
+                <a class="menuitem_green" href="">Green button</a>
+                
+                <a class="menuitem_red" href="">Red button</a>
+                -->    
+            </div>
+            
+            <{include file="sidebar_box.html"}>
+            
+            <!--
+            
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h4>Important notice</h4>
+                <img src="images/notice.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h5>Download photos</h5>
+                <img src="images/photo.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>  
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h3>To do List</h3>
+                <img src="images/info.png" alt="" title="" class="sidebar_icon_right" />
+                <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                 <li>Lorem ipsum dolor sit ametconsectetur <strong>adipisicing</strong> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur <a href="#">adipisicing</a> elit.</li>
+                   <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                    <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                     <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                </ul>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            --> 
+    
+    </div>  
+    
+    <div class="right_content">            
+        
+    <h2>Regiones</h2>
+                    
+                    
+<table id="rounded-corner" summary="2007 Major IT Companies' Profit">
+    <thead>
+    	<tr>
+       		<th scope="col" class="rounded-company">Regi&oacute;n</th>
+            <th scope="col" class="rounded">Nombre</th>
+            <th scope="col" class="rounded-q4">Acciones</th>
+        </tr>
+    </thead>
+    <tfoot>
+    	<tr>
+	        <{if isset($exito)}>
+	           <{if $exito}>
+	        		<td colspan="2" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$row_number}> registro(s).</em></td>
+				<{/if}>
+			<{else}>
+				<td colspan="2" class="rounded-foot-left"><em>&nbsp;</em></td>
+			<{/if}>
+        	<td class="rounded-foot-right">&nbsp;</td>
+
+        </tr>
+    </tfoot>
+    <tbody>
+    	<{foreach from=$search_result item=item}>
+	    	<tr>
+	            <td><{$item.descripcion}></td>
+	            <td><{$item.nombre}></td>
+				<td>
+					<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
+	
+<!-- 						<a href="javascript:edita_region(<{$item.id}>)" class="edit"><img src="images/user_edit.png" alt="Edita Regi&oacute;n" title="Edita Regi&oacute;n" border="0" /></a> -->
+
+						<a href="#" class="edit" id="<{$item.id}>"><img src="images/user_edit.png" alt="Edita Regi&oacute;n" title="Edita Regi&oacute;n" border="0" /></a>
+						
+<!-- 						<a href="<{$item.id}>" class="confirm_delete"><img src="images/trash.png" alt="Elimina Regi&oacute;n" title="Elimina Regi&oacute;n" border="0" /></a> -->
+	
+					<{/if}>
+	            </td>
+	        </tr>
+        <{/foreach}>
+    </tbody>
+</table>
+	
+	<!-- movido a left_content
+	<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
+		<a href="<{$receiver}>?do=AgregaUsuario" class="bt_green"><span class="bt_green_lft"></span><strong>Agregar</strong><span class="bt_green_r"></span></a>
+	<{/if}>
+	-->
+	
+    <!--
+     <a href="#" class="bt_blue"><span class="bt_blue_lft"></span><strong>View all items from category</strong><span class="bt_blue_r"></span></a>
+     <a href="#" class="bt_red"><span class="bt_red_lft"></span><strong>Delete items</strong><span class="bt_red_r"></span></a> 
+     
+     
+        <div class="pagination">
+        <span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a>…<a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>
+        </div> 
+     -->
+     <!--
+     <h2>Warning Box examples</h2>
+      
+     <div class="warning_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>
+     <div class="valid_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>
+     <div class="error_box">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+     </div>  
+    -->
+    <!--  
+     <h2>Nice Form example</h2>
+     
+         <div class="form">
+         <form action="" method="post" class="niceform">
+         
+                <fieldset>
+                    <dl>
+                        <dt><label for="email">Email Address:</label></dt>
+                        <dd><input type="text" name="" id="" size="88.8" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="password">Password:</label></dt>
+                        <dd><input type="text" name="" id="" size="88.8" /></dd>
+                    </dl>
+                    
+                    
+                    <dl>
+                        <dt><label for="gender">Select categories:</label></dt>
+                        <dd>
+                            <select size="1" name="gender" id="">
+                                <option value="">Select option 1</option>
+                                <option value="">Select option 2</option>
+                                <option value="">Select option 3</option>
+                                <option value="">Select option 4</option>
+                                <option value="">Select option 5</option>
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="interests">Select tags:</label></dt>
+                        <dd>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Web design</label>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Business</label>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Simple</label>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Clean</label>
+                        </dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label for="color">Select type</label></dt>
+                        <dd>
+                            <input type="radio" name="type" id="" value="" /><label class="check_label">Basic</label>
+                            <input type="radio" name="type" id="" value="" /><label class="check_label">Medium</label>
+                            <input type="radio" name="type" id="" value="" /><label class="check_label">Premium</label>
+                        </dd>
+                    </dl>
+                    
+                    
+                    
+                    <dl>
+                        <dt><label for="upload">Upload a File:</label></dt>
+                        <dd><input type="file" name="upload" id="upload" /></dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label for="comments">Message:</label></dt>
+                        <dd><textarea name="comments" id="comments" rows="5" cols="36"></textarea></dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label></label></dt>
+                        <dd>
+                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">I agree to the <a href="#">terms &amp; conditions</a></label>
+                        </dd>
+                    </dl>
+                    
+                     <dl class="submit">
+                    <input type="submit" name="submit" id="submit" value="Submit" />
+                     </dl>
+                     
+                     
+                    
+                </fieldset>
+                
+         </form>
+         </div>  
+      -->
+     
+     </div><!-- end of right content-->
+            
+                    
+  </div>   <!--end of center content -->               
+                    
+                    
+    
+    
+    <div class="clear"></div>
+    </div> <!--end of main content-->
+	
+    
+    <{include file="footer.html"}>
+
+</div>		
+</body>
+</html>

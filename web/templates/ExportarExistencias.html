@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/excel" />
+<meta name="Content-Disposition" content="attachment; filename=export.xls" />
+<title>Sistema de Gesti&oacute;n de Repuestos de Red</title>
+</head>
+<body>
+    <!--                
+	<table id="rounded-corner" summary="2007 Major IT Companies' Profit">
+    	<thead>
+	    	<tr>
+	            <th scope="col" class="rounded">Zona</th>
+	            <th scope="col" class="rounded">Plat</th>
+	            <th scope="col" class="rounded">Fab</th>
+	            <th scope="col" class="rounded">Modelo</th>
+	            <th scope="col" class="rounded">Stock</th>
+	            <th scope="col" class="rounded">Umbral</th>
+	        </tr>
+    	</thead>
+        <tfoot>
+    	</tfoot>
+    	<tbody>
+	        <{foreach from=$search_result item=item}>
+		        <tr>	
+		            <td><{$item.zona}></td>
+		            <td><{$item.plataforma}></td>
+		            <td><{$item.fabricante}></td>
+		            <td><{$item.modelo}></td>
+		            <td><{$item.stock}></td>
+		            <td><{$item.umbral}></td>
+		        </tr>
+        	<{/foreach}>                    
+        
+    	</tbody>
+	</table>
+	-->
+	
+	<table id="rounded-corner">
+    	<thead>
+	    	<tr>
+	    		<th scope="col" class="rounded">Zona</th>
+				<th scope="col" class="rounded">Plataforma</th>
+	            <th scope="col" class="rounded">Regi&oacute;n</th>
+	            <th scope="col" class="rounded">Ciudad</th>
+	            <th scope="col" class="rounded">R/E</th>
+	            <th scope="col" class="rounded">Fab</th>
+	            <th scope="col" class="rounded">PID</th>
+	            <th scope="col" class="rounded">Descripci&oacute;n</th>
+	            <th scope="col" class="rounded">SAP</th>
+	            <th scope="col" class="rounded">Serial</th>
+	            <th scope="col" class="rounded">Nombre</th>
+	            <th scope="col" class="rounded">SLA</th>
+	            <th scope="col" class="rounded">Encargado</th>
+	            <th scope="col" class="rounded">Cantidad</th>
+	        </tr>
+    	</thead>
+        <tfoot>
+    	</tfoot>
+    	<tbody>
+
+	        <{foreach from=$search_result item=repuesto}>
+	        <tr>	
+	        	<td><{$repuesto.zona}></td>
+	            <td><{$repuesto.plataforma}></td>
+	            <td><{$repuesto.region}></td>
+	            <td><{$repuesto.ciudad}></td>
+	            <td><{$repuesto.radio_estacion}></td>
+	            <td><{$repuesto.fabricante}></td>
+	            <td><{$repuesto.pid}></td>
+	            <td><{$repuesto.modelo_descripcion}></td>
+	            <td><{$repuesto.sap}></td>
+				<td><{$repuesto.serial}></td>
+				<td><{$repuesto.nombre}></td>
+				<td><{$repuesto.sla}></td>
+				<td><{$repuesto.encargado|htmlentities}></td>
+				<td><{$repuesto.cantidad}></td>
+	        </tr>
+	        <{/foreach}>                    
+        
+    	</tbody>
+	</table>
+	
+</body>
+</html>

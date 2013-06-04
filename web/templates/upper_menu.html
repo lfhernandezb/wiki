@@ -1,0 +1,61 @@
+                    <div class="menu">
+	                    <ul>
+		                    <li>
+		                    	<a href="">Repuestos</a>
+		                    	<!--[if lte IE 6]><table><tr><td><![endif]-->
+		                        <ul>
+			                        <li><a href="<{$receiver}>?do=DisplayHome" title="">B&uacute;squeda</a></li>
+			                        
+									<{if $puedeAgregar}>
+										<li><a href="<{$receiver}>?do=AgregaRepuesto" title="">Ingreso Manual</a></li>
+									<{/if}>
+			                        
+									<{if $puedeAgregar}>
+										<li><a href="<{$receiver}>?do=AgregaRepuestoMasivo" title="">Ingreso Masivo</a></li>
+									<{/if}>
+			                        
+		                        </ul>
+		                    	<!--[if lte IE 6]></td></tr></table></a><![endif]-->
+		                    </li>
+							<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
+								<li><a href="">Usuarios</a>
+			                        <ul>
+				                        <li><a href="<{$receiver}>?do=GestionaUsuarios" title="">B&uacute;squeda</a></li>
+				                        
+										<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
+											<li><a href="<{$receiver}>?do=AgregaUsuario" title="">Ingreso Manual</a></li>
+										<{/if}>
+				                        
+				                        
+				                        <!--<li><a href="<{$receiver}>?do=AgregaUsuarioMasivo" title="">Ingreso Masivo</a></li>-->
+			                        </ul>
+								</li>
+							<{/if}>
+		
+							<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
+								<li>
+									<a href="">Par&aacute;metros</a>
+			                        <ul>
+				                        <li><a href="<{$receiver}>?do=Regiones" title="">Regiones</a></li>
+				                        <li><a href="<{$receiver}>?do=Zonas" title="">Zonas</a></li>
+			                        </ul>
+								</li>
+							<{/if}>
+		
+		                    <li><!--[if IE 7]><!--><!--<![endif]-->
+		                    	<a href="">Reportes</a>
+		                    <!--[if lte IE 6]><table><tr><td><![endif]-->
+		                        <ul>
+			                        <li><a href="<{$receiver}>?do=ReporteActividad" title="">Reporte de Actividad</a></li>
+			                        <li><a href="<{$receiver}>?do=ReporteExistencias" title="">Reporte de Existencias</a></li>
+		                        </ul>
+		                    <!--[if lte IE 6]></td></tr></table></a><![endif]-->
+		                    </li>
+		                    <li><a href="#">Administraci&oacute;n</a>
+			                        <ul>
+				                        <li><a href="<{$receiver}>?do=AdministraCuenta" title="">Administra Cuenta</a></li>
+			                        </ul>
+		                    </li>
+	                    </ul>
+                    </div> 
+

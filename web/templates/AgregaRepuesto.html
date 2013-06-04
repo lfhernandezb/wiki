@@ -1,0 +1,1532 @@
+<{include file="top.html"}>
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+        <{if isset($exito)}>
+        	<{if $exito}>
+				var choices;
+				var data;
+			
+				// selecciono la plataforma elegida pre submit
+				$('#plataforma').val($('#sel_plataforma').val());
+
+				// deshabilito el control, ya que no es posible hacer modificaciones post submit exitoso 
+				$('#plataforma').attr('disabled', true);
+
+				// selecciono la region elegida pre submit
+				$('#region').val($('#sel_region').val());
+
+				// deshabilito el control, ya que no es posible hacer modificaciones post submit exitoso 
+				$('#region').attr('disabled', true);
+				
+				// cargo las ciudades presentes presubmit; las opciones se graban en la sesion en comando Ajax; tambien pudo agregarse una nueva,
+				// en cuyo caso el arreglo se genera en el controlador
+				choices = '';
+
+				data = <{$options_ciudades}>;
+	             
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione Ciudad</option>";
+
+	            $.each(data.ciudades, function(index, ciudad) {
+	                choices += "<option value=\"" + ciudad.id.toString() + "\">";
+	                choices += ciudad.descripcion.toString();
+	                choices += "</option>";
+	            });
+	            
+	            choices += "<option value=\"\">Otra</option>";
+	            
+				// elimino el contenido del control
+	            $('#ciudad').text('');
+	            // agrego las opciones al combobox
+	            $(choices).appendTo('#ciudad');
+				// dejo seleccionado el mismo pre submit
+	            $('#ciudad').val($('#sel_ciudad').val());
+
+	            $('#ciudad').attr('disabled', true);
+				
+				// cargo las R/E presentes presubmit; las opciones se graban en la sesion en comando Ajax; tambien pudo agregarse una nueva,
+				// en cuyo caso el arreglo se genera en el controlador
+				choices = '';
+
+				data = <{$options_res}>;
+	             
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione R/E</option>";
+
+	            $.each(data.res, function(index, re) {
+	                choices += "<option value=\"" + re.id.toString() + "\">";
+	                choices += re.descripcion.toString();
+	                choices += "</option>";
+	            });
+	            
+	            choices += "<option value=\"\">Otra</option>";
+	            
+	            $('#re').text('');
+	            $(choices).appendTo('#re');
+
+	            $('#re').val($('#sel_re').val());
+
+	            $('#re').attr('disabled', true);
+
+
+				// pudo haber nuevo fabricante, el cual se refresca mediante addVar en el controlador
+				$('#fabricante').val($('#sel_fabricante').val());
+
+				$('#fabricante').attr('disabled', true);
+
+				// cargo los modelos presentes presubmit; las opciones se graban en la sesion en comando Ajax; tambien pudo agregarse uno nuevo,
+				// en cuyo caso el arreglo se genera en el controlador
+				choices = '';
+
+				data = <{$options_modelos}>;
+	             
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione Modelo</option>";
+
+	            $.each(data.modelos, function(index, modelo) {
+	                choices += "<option value=\"" + modelo.id.toString() + "\">";
+	                choices += modelo.pid.toString()+' '+modelo.descripcion.toString();
+	                choices += "</option>";
+	            });
+	            
+	            choices += "<option value=\"\">Otro</option>";
+	            
+	            //choices += "</select>";
+
+	            //alert(choices.toString());
+	            
+	            $('#modelo').text('');
+	            $(choices).appendTo('#modelo');
+
+	            $('#modelo').val($('#sel_modelo').val());
+
+	            $('#modelo').attr('disabled', true);
+
+	            // cargo los encargados presentes presubmit; las opciones se graban en la sesion en comando Ajax; tambien pudo agregarse uno nuevo,
+				// en cuyo caso el arreglo se genera en el controlador
+				choices = '';
+
+				data = <{$options_encargados}>;
+	             
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione Encargado</option>";
+
+	            $.each(data.encargados, function(index, encargado) {
+	                choices += "<option value=\"" + encargado.id.toString() + "\">";
+	                choices += encargado.descripcion.toString();
+	                choices += "</option>";
+	            });
+	            
+	            choices += "<option value=\"\">Otro</option>";
+	            
+	            $('#encargado').text('');
+	            $(choices).appendTo('#encargado');
+
+	            $('#encargado').val($('#sel_encargado').val());
+
+	            $('#encargado').attr('disabled', true);
+	            
+				
+				// los textboxes quedan como readonly, ya que no es posible hacer modificaciones post submit exitoso															
+				$('#sap').attr('readonly', true);
+				$('#serial').attr('readonly', true);
+				$('#nombre').attr('readonly', true);
+				$('#sla').attr('readonly', true);
+				$('#posicion').attr('readonly', true);
+				$('#ip').attr('readonly', true);
+				$('#consola_activa').attr('readonly', true);
+				$('#consola_standby').attr('readonly', true);
+				$('#ubicacion').attr('readonly', true);
+				$('#comentarios').attr('readonly', true);
+
+				// boton submit se esconde
+				//$('#submit').attr('disabled', true);
+				$('.submit').hide();
+
+				$('#otro_plataforma').parent().parent().hide();
+				
+				$('#otro_ciudad').parent().parent().hide();
+				
+				$('#otro_re').parent().parent().hide();
+				
+				$('#otro_fabricante').parent().parent().hide();
+				
+				$('.otro_modelo').parent().parent().hide();
+				
+				$('#otro_encargado').parent().parent().hide();
+			
+			<{/if}>
+		<{else}>
+			$('#ciudad').attr('disabled', true);
+	
+			$('#re').attr('disabled', true);
+	
+			$('#modelo').attr('disabled', true);
+			
+			$('#encargado').attr('disabled', true);
+			
+			$('#otro_plataforma').parent().parent().hide();
+			
+			$('#otro_ciudad').parent().parent().hide();
+			
+			$('#otro_re').parent().parent().hide();
+			
+			$('#otro_fabricante').parent().parent().hide();
+			
+			$('.otro_modelo').parent().parent().hide();
+			
+			$('#otro_encargado').parent().parent().hide();
+		<{/if}>
+
+		$('#agrega_repuesto').submit(function(e) {
+			var element;
+			var val;
+			var message;
+			var previousElement;
+			var data;
+			
+			// arreglo de selects que deben tener elemento seleccionado valido
+			// cada elemento tiene:
+			// indice del niceform
+			// nombre del parametro
+			// opcional, arreglo de parametros dependientes, en el sentido que si se escoje 'otro', deben tenerse valores distintos de nulo en los textboxes otro_<parametro>
+			var selects = [[0, 'plataforma', ['plataforma']], [1, 'region'], [2, 'ciudad', ['ciudad', 're']], [3, 're', ['re']], [4, 'fabricante', ['fabricante', 'descripcion']], [5, 'modelo', ['descripcion']], [6, 'encargado', ['encargado']]];
+			
+			// arreglo de textboxes con valores distintos de nulo
+			var texts = ['nombre', 'sla', 'cantidad'];
+			
+			var success =  true;
+			var errorElement = document.createElement('label');
+			
+			$(errorElement).addClass('error');
+			
+			$(selects).each(function() {
+				if (success) {
+					element = $('#'+this[1]);
+					val = $(element).val();
+					if (val == '') {
+						// seleccionado el primer elemento (Seleccione item)
+						message = 'Favor seleccione '+this[1];
+						previousElement = $('#nfSelectTarget'+this[0]);
+						success = false;
+					}
+					else if (val == '9999') {
+						// seleccionado 'otro'
+						$(this[2]).each(function() {
+							if (success) {
+								element = $('#otro_'+this);
+								val = $(element).val();
+								
+								if (val == '') {
+									// no se ha ingresado el dato
+									message = 'Favor ingrese '+this;
+									previousElement = element;
+									success = false;
+								}
+								else {
+									// se ha ingresado algo, valido que no este presente en la BD
+									
+						            $.ajax({
+						                async: false,
+						                url: "<{$receiver}>?do=Ajax&req="+this+"Existente&param=" + val,
+						                type: 'GET',
+						                dataType: 'json',
+						                error: function(xhr){
+						                 	if (xhr.status == 401) {
+						                 		// sesion expirada, redirijo a login
+						                 		window.location = "<{$receiver}>";
+						                 	}
+						                 	else {
+						                 		// error en ajax
+						                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+						                 	}
+						                },
+						                success: function(output_string){
+						                	//alert(output_string);
+						                    data = output_string;
+						                }
+						            });
+					
+						            //alert(data.existe);
+						            
+						            if (data.respuesta == '1') {
+										message = this+' '+val+' ya existe en el sistema';
+										previousElement = element;
+										success = false;
+						            }
+	            
+									
+								}
+							}
+						}); // end each
+					}
+				}
+			}); // end each
+			
+			/*			
+			element = $('#plataforma'); 
+			if ($(element).val() == "") {
+				$(element).addClass('error');
+				$(errorElement).text("Favor seleccione plataforma");
+				$(errorElement).insertAfter($('#nfSelectTarget0'));
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+			
+			element = $('#region');
+			if ($(element).val() == "") {
+				$(element).addClass('error');
+				$(errorElement).text("Favor seleccione region");
+				$(errorElement).insertAfter($('#nfSelectTarget1'));
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+
+			element = $('#ciudad');
+			if ($(element).val() == "") {
+				$(element).addClass('error');
+				$(errorElement).text("Favor seleccione ciudad");
+				$(errorElement).insertAfter($('#nfSelectTarget2'));
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+
+			element = $('#re');
+			if ($(element).val() == "") {
+				$(element).addClass('error');
+				$(errorElement).text("Favor seleccione R/E");
+				$(errorElement).insertAfter($('#nfSelectTarget3'));
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+
+			element = $('#fabricante');
+			if ($(element).val() == "") {
+				$(element).addClass('error');
+				$(errorElement).text("Favor seleccione fabricante");
+				$(errorElement).insertAfter($('#nfSelectTarget4'));
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+
+			element = $('#modelo');
+			if ($(element).val() == "") {
+				$(element).addClass('error');
+				$(errorElement).text("Favor seleccione modelo");
+				$(errorElement).insertAfter($('#nfSelectTarget5'));
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+			*/
+			
+			$(texts).each(function() {
+				if (success) {
+					element = $('#'+this);
+	
+					if ($(element).val() == '') {
+						message = 'Favor ingrese '+this;
+						previousElement = element;
+						success = false;
+					}
+				}
+			}); // end each
+
+			// si se ingresa serial (opcional), no debe de haber otro modelo con el mismo valor
+			if (success) {
+				var serial = $('#serial').val().toString();
+				var idModelo = $('#modelo').val();
+
+				if (serial != '' && idModelo != 9999 && typeof idModelo !== 'undefined' && idModelo != null) {
+
+					$.ajax({
+		                async: false,
+		                url: "<{$receiver}>?do=Ajax&req=serialExistente&idModelo=" + idModelo.toString() + "&serial=" + serial,
+		                type: 'GET',
+		                dataType: 'json',
+		                error: function(xhr){
+		                 	if (xhr.status == 401) {
+		                 		// sesion expirada, redirijo a login
+		                 		window.location = "<{$receiver}>";
+		                 	}
+		                 	else {
+		                 		// error en ajax
+		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+		                 	}
+		                },
+		                success: function(output_string){
+		                	//alert(output_string);
+		                    data = output_string;
+		                }
+		            });
+
+					if (data.respuesta == '1') {
+						element = $('#serial');
+						previousElement = element;
+						message = 'Existe ya un equipo con este serial';
+						success = false;
+					}
+				}
+			}				
+
+			// si se ingresa codigo SAP (opcional), no debe de haber otro modelo con el mismo valor
+			if (success) {
+				var sap = $('#otro_sap').val().toString();
+
+				if (sap != '' && typeof sap !== 'undefined' && sap != null) {
+
+					$.ajax({
+		                async: false,
+		                url: "<{$receiver}>?do=Ajax&req=sapExistente&param=" + sap.toString(),
+		                type: 'GET',
+		                dataType: 'json',
+		                error: function(xhr){
+		                 	if (xhr.status == 401) {
+		                 		// sesion expirada, redirijo a login
+		                 		window.location = "<{$receiver}>";
+		                 	}
+		                 	else {
+		                 		// error en ajax
+		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+		                 	}
+		                },
+		                success: function(output_string){
+		                	//alert(output_string);
+		                    data = output_string;
+		                }
+		            });
+
+					if (data.respuesta == '1') {
+						element = $('#otro_sap');
+						previousElement = element;
+						message = 'Existe ya un equipo con este codigo SAP';
+						success = false;
+					}
+				}
+			}				
+			/*			
+			element = $('#descripcion');
+			if ($(element).val() == "") {
+				$(element).addClass('error');
+				$(errorElement).text("Favor ingrese descripcion");
+				$(errorElement).insertAfter(element);
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+
+			element = $('#serial');
+			if ($(element).val() == "") {
+				$(errorElement).text("Favor ingrese S/N");
+				$(errorElement).insertAfter(element);
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+
+			element = $('#nombre');
+			if ($(element).val() == "") {
+				$(errorElement).text("Favor ingrese nombre");
+				$(errorElement).insertAfter(element);
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+
+			element = $('#sla');
+			if ($(element).val() == "") {
+				$(errorElement).text("Favor ingrese SLA");
+				$(errorElement).insertAfter(element);
+				$(element).focus();
+				// tambien puede llamarse a preventDefault()
+				return false;
+			}
+			*/
+			
+			if (!success) {
+				$(element).addClass('error');
+				$(errorElement).text(message);
+				$(errorElement).insertAfter(previousElement);
+				$(element).focus();
+			}
+			
+			return success;
+		}); // end submit
+
+		$('#region').change(function() {
+			// al cambiar la region por algo valido, debo cargar en el combo de ciudad las que le pertenecen, y los encargados
+			// si se selecciona 'Seleccione region', debo descargar ciudades y encargados
+			var data;
+			var opt;
+			var choices, choices1, choices2;
+			var sel = $(this).val().toString();
+			
+			// alert(sel);
+			
+			if ($(this).hasClass('error')) {
+				$(this).removeClass('error');
+				$('.error').remove();
+			}
+
+			if (sel == 0) {
+				// elegido titulo
+				
+				// genero opciones de combo de ciudades
+	            choices1 = '';
+	            choices1 += "<option value=\"\" selected=\"selected\">Seleccione Ciudad</option>";
+
+				// deshabilito select (y niceform) de ciudades
+				$('#ciudad').attr('disabled', true);
+				
+				// escondo text niceform de otra ciudad
+				$('#otro_ciudad').parent().parent().parent().hide();
+				
+				// muestro select niceform de R/E
+				$('#re').parent().parent().show();
+				
+				// escondo text niceform de otra R/E
+				$('#otro_re').parent().parent().parent().hide();
+
+			
+			
+				// genero opciones de combo de encargados
+	            choices2 = '';
+	            choices2 += "<option value=\"\" selected=\"selected\">Seleccione Encargado</option>";
+
+				// deshabilito select (y niceform) de encargados
+				$('#encargado').attr('disabled', true);
+				
+				// escondo text niceform de otra encargados
+				$('#otro_encargado').parent().parent().parent().hide();
+				
+			}
+			else {
+				// region valida del combo
+								
+				// genero opciones de select ciudad
+	            $.ajax({
+	                async: false,
+	                url: "<{$receiver}>?do=Ajax&req=getCiudades&id_region=" + sel,
+	                type: 'GET',
+	                dataType: 'json',
+	                error: function(xhr){
+	                 	if (xhr.status == 401) {
+	                 		// sesion expirada, redirijo a login
+	                 		window.location = "<{$receiver}>";
+	                 	}
+	                 	else {
+	                 		// error en ajax
+	                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+	                 	}
+	                },
+	                success: function(output_string){
+	                	//alert(output_string);
+	                    data = output_string;
+	                }
+	            });
+
+	            //alert(data.ciudades);
+	            
+				choices1 = '';
+	            //var choices = "<select size=\"1\" name=\"ciudad\" id=\"ciudad\" >"; 
+	            choices1 += "<option value=\"\" selected=\"selected\">Seleccione Ciudad</option>";
+
+	            $.each(data.ciudades, function(index, ciudad) {
+	                choices1 += "<option value=\"" + ciudad.id.toString() + "\">";
+	                choices1 += ciudad.descripcion.toString();
+	                choices1 += "</option>";
+	            });
+	            
+	            choices1 += "<option value=\"9999\">Otra</option>";
+	            
+	            //choices += "</select>";
+
+	            //alert(choices.toString());
+	            
+				// habilito select (y niceform) de ciudades
+				$('#ciudad').attr('disabled', false);
+
+	            // escondo text niceform de otra ciudad
+	            $('#otro_ciudad').parent().parent().parent().hide();
+	            
+	            // escondo text niceform de otra R/E
+	            $('#otro_re').parent().parent().parent().hide();
+	            
+	            // muestro select niceform de R/E
+	            $('#re').parent().parent().show();
+
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+				// genero opciones de select encargado
+	            $.ajax({
+	                async: false,
+	                url: "<{$receiver}>?do=Ajax&req=getEncargados&id_region=" + sel,
+	                type: 'GET',
+	                dataType: 'json',
+	                error: function(xhr){
+	                 	if (xhr.status == 401) {
+	                 		// sesion expirada, redirijo a login
+	                 		window.location = "<{$receiver}>";
+	                 	}
+	                 	else {
+	                 		// error en ajax
+	                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+	                 	}
+	                },
+	                success: function(output_string){
+	                	//alert(output_string);
+	                    data = output_string;
+	                }
+	            });
+
+	            //alert(data.encargadoes);
+	            
+				choices2 = '';
+	            //var choices = "<select size=\"1\" name=\"encargado\" id=\"encargado\" >"; 
+	            choices2 += "<option value=\"\" selected=\"selected\">Seleccione Encargado</option>";
+
+	            $.each(data.encargados, function(index, encargado) {
+	                choices2 += "<option value=\"" + encargado.id.toString() + "\">";
+	                choices2 += encargado.descripcion.toString();
+	                choices2 += "</option>";
+	            });
+	            
+	            choices2 += "<option value=\"9999\">Otro</option>";
+	            
+	            //choices += "</select>";
+
+	            //alert(choices.toString());
+	            
+				// habilito select (y niceform) de encargados
+				$('#encargado').attr('disabled', false);
+
+	            // escondo text niceform de otra encargado
+	            $('#otro_encargado').parent().parent().parent().hide();
+	            
+			}
+			
+			// agrego las opciones generadas al select de ciudades
+            $('#ciudad').text('');
+            $(choices1).appendTo('#ciudad');
+            
+            // re-genero niceform de select ciudades
+            
+            // elimino el nodo
+            $('#nfSelectOptions2').remove();
+
+			// lo re-creo
+            opt = document.createElement('ul');
+
+			$(opt)
+				.attr({id: 'nfSelectOptions2'})
+				.addClass('NFSelectOptions');
+		
+			//get select's options and add to options div
+			$('#ciudad option').each(function(k) {
+				var optionHolder = document.createElement('li');
+				var optionLink = document.createElement('a');
+				var optionTxt = document.createTextNode(this.text);
+				
+				$(optionLink)
+					//.addClass('NFOptionActive')
+					.attr({id: 'nfSelectText'+k})
+					.attr({href:'#'})
+					.css({cursor:'pointer'})
+					.append(optionTxt)
+					.bind('click', {who: 2, id:'ciudad', option:k, select:2}, function(e){
+						//self.showOptions(e);
+						jQuery.NiceJForms.selectMe('ciudad', k, 2);
+						jQuery.NiceJForms.hideOptions(e);
+					});
+				
+				$(optionHolder).append(optionLink);
+				$(opt).append(optionHolder);
+				
+				//check for pre-selected items
+				if($('#ciudad').children()[k].selected) {
+					// show selected option on select caption
+					$('#nfSelectRight2').text($('#ciudad').children()[k].text);
+					
+					// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+				}
+			});
+
+			$('#nfSelectTarget2').append(opt);
+            
+			// solamente dejo el titulo en select R/E
+            choices = '';
+            choices += "<option value=\"\" selected=\"selected\">Seleccione R/E</option>";
+            
+            // agrego choice a select R/E
+            $('#re').text('');
+            $(choices).appendTo('#re');
+            
+            // re-genero niceform de select R/E
+            
+            // elimino nodo
+            $('#nfSelectOptions3').remove();
+
+			// lo re-creo
+            opt = document.createElement('ul');
+
+			$(opt)
+				.attr({id: 'nfSelectOptions3'})
+				.addClass('NFSelectOptions');
+		
+			//get select's options and add to options div
+			$('#re option').each(function(k) {
+				var optionHolder = document.createElement('li');
+				var optionLink = document.createElement('a');
+				var optionTxt = document.createTextNode(this.text);
+				
+				$(optionLink)
+					//.addClass('NFOptionActive')
+					.attr({id: 'nfSelectText'+k})
+					.attr({href:'#'})
+					.css({cursor:'pointer'})
+					.append(optionTxt)
+					.bind('click', {who: 3, id:'re', option:k, select:3}, function(e){
+						//self.showOptions(e);
+						jQuery.NiceJForms.selectMe('re', k, 3);
+						jQuery.NiceJForms.hideOptions(e);
+					});
+				
+				$(optionHolder).append(optionLink);
+				$(opt).append(optionHolder);
+				
+				//check for pre-selected items
+				if($('#re').children()[k].selected) {
+					// show selected option on select caption
+					$('#nfSelectRight3').text($('#re').children()[k].text);
+					
+					// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+				}
+			});
+
+			$('#nfSelectTarget3').append(opt);
+
+			// deshabilito select (y niceform) de R/E
+			$('#re').attr('disabled', true);
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			// agrego las opciones generadas al select de encargadoes
+            $('#encargado').text('');
+            $(choices2).appendTo('#encargado');
+            
+            // re-genero niceform de select encargadoes
+            
+            // elimino el nodo
+            $('#nfSelectOptions6').remove();
+
+			// lo re-creo
+            opt = document.createElement('ul');
+
+			$(opt)
+				.attr({id: 'nfSelectOptions6'})
+				.addClass('NFSelectOptions');
+		
+			//get select's options and add to options div
+			$('#encargado option').each(function(k) {
+				var optionHolder = document.createElement('li');
+				var optionLink = document.createElement('a');
+				var optionTxt = document.createTextNode(this.text);
+				
+				$(optionLink)
+					//.addClass('NFOptionActive')
+					.attr({id: 'nfSelectText'+k})
+					.attr({href:'#'})
+					.css({cursor:'pointer'})
+					.append(optionTxt)
+					.bind('click', {who: 6, id:'encargado', option:k, select:6}, function(e){
+						//self.showOptions(e);
+						jQuery.NiceJForms.selectMe('encargado', k, 6);
+						jQuery.NiceJForms.hideOptions(e);
+					});
+				
+				$(optionHolder).append(optionLink);
+				$(opt).append(optionHolder);
+				
+				//check for pre-selected items
+				if($('#encargado').children()[k].selected) {
+					// show selected option on select caption
+					$('#nfSelectRight6').text($('#encargado').children()[k].text);
+					
+					// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+				}
+			});
+
+			$('#nfSelectTarget6').append(opt);
+			
+			
+		}); // end change
+
+		$('#ciudad').change(function() {
+			// al cambiar la ciudad debo cargar en el combo de r/e las que le pertenecen
+			var data;
+			var sel = $('#ciudad').val().toString();
+			var otro = $('#otro_ciudad');
+			
+			// alert(sel);
+			
+			if ($(this).hasClass('error')) {
+				$(this).removeClass('error');
+				$('.error').remove();
+			}
+
+			if (sel == 0) {
+				// seleccionado titulo
+	            
+	            // genero opciones sel select R/E
+	            choices = '';
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione R/E</option>";
+				
+				// escondo text niceform de otra ciudad
+				otro.parent().parent().parent().hide();
+
+				// muestro select niceform de R/E
+				$('#re').parent().parent().show();
+
+				// deshabilito select (y niceform) de R/E
+				$('#re').attr('disabled', true);
+
+				// escondo text niceform de otra R/E
+				$('#otro_re').parent().parent().parent().hide();
+			}
+			else if (sel == 9999) {
+				// seleccionado 'otra'
+				
+				// presento text input
+				otro.parent().parent().parent().show();
+				
+				// presento text niceform para R/E
+				$('#otro_re').parent().parent().parent().show();
+				
+				// escondo select niceform de R/E
+				$('#re').parent().parent().hide();
+				
+				// focus en text input
+				otro.focus();
+			}
+			else
+			{
+				// ciudad valida en combo
+								
+				// genero opciones para R/E
+	            $.ajax({
+	                async: false,
+	                url: "<{$receiver}>?do=Ajax&req=getRadioEstaciones&id_ciudad=" + sel,
+	                type: 'GET',
+	                dataType: 'json',
+	                error: function(xhr){
+	                 	if (xhr.status == 401) {
+	                 		// sesion expirada, redirijo a login
+	                 		window.location = "<{$receiver}>";
+	                 	}
+	                 	else {
+	                 		// error en ajax
+	                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+	                 	}
+	                },
+	                success: function(output_string){
+	                	//alert(output_string);
+	                    data = output_string;
+	                }
+	            });
+
+	            //alert(data.ciudades);
+	            
+				var choices = '';
+	            //var choices = "<select size=\"1\" name=\"ciudad\" id=\"ciudad\" >"; 
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione R/E</option>";
+
+	            $.each(data.res, function(index, re) {
+	                choices += "<option value=\"" + re.id.toString() + "\">";
+	                choices += re.descripcion.toString();
+	                choices += "</option>";
+	            });
+	            
+	            choices += "<option value=\"9999\">Otra</option>";
+	            
+	            //choices += "</select>";
+
+	            //alert(choices.toString());
+
+				// habilito select (y niceform) R/E
+				$('#re').attr('disabled', false);
+				
+				// escondo text niceform de otra ciudad
+				otro.parent().parent().parent().hide();
+
+	            // escondo text niceform de otra R/E
+	            $('#otro_re').parent().parent().parent().hide();
+	            
+	            // muestro select niceform de R/E
+	            $('#re').parent().parent().show();
+			}
+			
+			// agrego las opciones generadas a select R/E
+            $('#re').text('');
+            $(choices).appendTo('#re');
+			
+			// re-genero select niceform R/·
+			
+			// elimino nodo
+            $('#nfSelectOptions3').remove();
+
+			// lo re-creo
+            var opt = document.createElement('ul');
+
+			$(opt)
+				.attr({id: 'nfSelectOptions3'})
+				.addClass('NFSelectOptions');
+		
+			//get select's options and add to options div
+			$('#re option').each(function(k) {
+				var optionHolder = document.createElement('li');
+				var optionLink = document.createElement('a');
+				var optionTxt = document.createTextNode(this.text);
+				
+				$(optionLink)
+					//.addClass('NFOptionActive')
+					.attr({id: 'nfSelectText'+k})
+					.attr({href:'#'})
+					.css({cursor:'pointer'})
+					.append(optionTxt)
+					.bind('click', {who: 3, id:'re', option:k, select:3}, function(e){
+						//self.showOptions(e);
+						jQuery.NiceJForms.selectMe('re', k, 3);
+						jQuery.NiceJForms.hideOptions(e);
+					});
+				
+				$(optionHolder).append(optionLink);
+				$(opt).append(optionHolder);
+				
+				//check for pre-selected items
+				if($('#re').children()[k].selected) {
+					// show selected option on select caption
+					$('#nfSelectRight3').text($('#re').children()[k].text);
+					
+					// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+				}
+			});
+
+			$('#nfSelectTarget3').append(opt);
+
+		}); // end change
+
+		$('#fabricante').change(function() {
+			// al cambiar el fabricante debo cargar en el combo de modelos los que le pertenecen
+			var data;
+			var sel = $('#fabricante').val().toString();
+			var otro = $('#otro_fabricante');
+			
+			// alert(sel);
+			
+			if ($(this).hasClass('error')) {
+				$(this).removeClass('error');
+				$('.error').remove();
+			}
+
+			if (sel == 0) {
+				// seleccionado titulo
+	            
+	            // genero opcion para select modelo
+	            choices = '';
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione Modelo</option>";
+
+				// deshabilito select (y niceform) de modelo
+				$('#modelo').attr('disabled', true);
+				
+				// escondo text niceform de otro fabricante
+				otro.parent().parent().parent().hide();
+				
+				// escondo text niceform de otro modelo
+				$('.otro_modelo').parent().parent().parent().hide();
+				
+				// muestro select niceform modelo
+				$('#modelo').parent().parent().show();
+			}
+			else if (sel == 9999) {
+				// seleccionado 'otro'
+				
+				// presento text niceform para otro fabricante
+				otro.parent().parent().parent().show();
+				
+				// presento text niceform para otro modelo
+				$('.otro_modelo').parent().parent().parent().show();
+				
+				// escondo select niceform para modelo
+				$('#modelo').parent().parent().hide();
+
+				// doy focus
+				otro.focus();
+			}
+			else {
+				// fabricante valido en combo
+				
+				// genero opciones de modelo
+	            $.ajax({
+	                async: false,
+	                url: "<{$receiver}>?do=Ajax&req=getModelos&id_fabricante=" + sel,
+	                type: 'GET',
+	                dataType: 'json',
+	                error: function(xhr){
+	                 	if (xhr.status == 401) {
+	                 		// sesion expirada, redirijo a login
+	                 		window.location = "<{$receiver}>";
+	                 	}
+	                 	else {
+	                 		// error en ajax
+	                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+	                 	}
+	                },
+	                success: function(output_string){
+	                	//alert(output_string);
+	                    data = output_string;
+	                }
+	            });
+
+	            //alert(data.modelos);
+	            
+				var choices = '';
+	            //var choices = "<select size=\"1\" name=\"ciudad\" id=\"ciudad\" >"; 
+	            choices += "<option value=\"\" selected=\"selected\">Seleccione Modelo</option>";
+
+	            $.each(data.modelos, function(index, modelo) {
+	                choices += "<option value=\"" + modelo.id.toString() + "\">";
+	                choices += modelo.pid.toString()+' '+modelo.descripcion.toString();
+	                choices += "</option>";
+	            });
+	            
+	            choices += "<option value=\"9999\">Otro</option>";
+	            
+	            //choices += "</select>";
+
+	            //alert(choices.toString());
+
+				// habilito select (y niceform) modelo
+				$('#modelo').attr('disabled', false);
+				
+				// escondo text niceform de otro fabricante
+				otro.parent().parent().parent().hide();
+
+	            // escondo text niceform de otro modelo
+	            $('.otro_modelo').parent().parent().parent().hide();
+	            
+	            // muestro select niceform de modelo
+	            $('#modelo').parent().parent().show();
+
+			}
+			
+			// agrego opciones a select modelo
+            $('#modelo').text('');
+            $(choices).appendTo('#modelo');
+			
+			// re-genero select niceform modelo
+			
+			// elimino el nodo 
+            $('#nfSelectOptions5').remove();
+
+			// lo re-creo
+            var opt = document.createElement('ul');
+
+			$(opt)
+				.attr({id: 'nfSelectOptions5'})
+				.addClass('NFSelectOptions');
+		
+			//get select's options and add to options div
+			$('#modelo option').each(function(k) {
+				var optionHolder = document.createElement('li');
+				var optionLink = document.createElement('a');
+				var optionTxt = document.createTextNode(this.text);
+				
+				$(optionLink)
+					//.addClass('NFOptionActive')
+					.attr({id: 'nfSelectText'+k})
+					.attr({href:'#'})
+					.css({cursor:'pointer'})
+					.append(optionTxt)
+					.bind('click', {who: 5, id:'modelo', option:k, select:5}, function(e){
+						//self.showOptions(e);
+						jQuery.NiceJForms.selectMe('modelo', k, 5);
+						jQuery.NiceJForms.hideOptions(e);
+					});
+				
+				$(optionHolder).append(optionLink);
+				$(opt).append(optionHolder);
+				
+				//check for pre-selected items
+				if($('#modelo').children()[k].selected) {
+					// show selected option on select caption
+					$('#nfSelectRight5').text($('#modelo').children()[k].text);
+					
+					// **** self.selectMe($(jQuery.NiceJForms.selects[q]).attr("id"), w, q);
+				}
+			});
+
+			$('#nfSelectTarget5').append(opt);
+
+		}); // end change
+	
+		// texto en USER HELP DESK
+		$('.sidebar_box p').html('<{$user_help_desk}>');
+
+	}); // end ready
+
+</script>
+
+<script type="text/javascript" src="js/agrega_repuesto.js"></script>
+
+</head>
+<body>
+<div id="main_container">
+
+	<{include file="header.html"}>
+    
+    <div class="main_content">
+    
+    <{include file="upper_menu.html"}>
+                    
+    <div class="center_content">  
+    
+    
+    
+    <div class="left_content">
+            
+    		<!--
+    
+    		<div class="sidebar_report1_form">
+	            <form action="<{$receiver}>?do=ReporteActividad" method="post" id="buscar" class="niceform">
+
+		            <fieldset>
+		            	<legend>Par&aacute;metros</legend>
+	                    <dl>
+	                        <label for="fecha_desde">Desde:</label>
+	                        <input type="text" name="fecha_desde" id="fecha_desde" size="8" value="<{$fecha_desde}>" />
+	                    </dl>
+	                    <dl>
+	                        <label for="fecha_hasta">Hasta:</label>
+	                        <input type="text" name="fecha_hasta" id="fecha_hasta" size="8" value="<{$fecha_hasta}>" />
+	                    	<br />
+						</dl>
+						<dl>
+							<input type="submit" name="submit" id="submit" value="Buscar" />
+						</dl>
+	                    
+			
+					</fieldset>
+	            </form>
+	        	
+            </div>
+    
+            -->
+            
+            <div class="sidebarmenu">
+            
+            	<!--
+            	<a class="menuitem submenuheader" href="" >Sidebar Settings</a>
+                <div class="submenu">
+                    <ul>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    </ul>
+                </div>
+                 
+                <a class="menuitem submenuheader" href="">Add new products</a>
+                <div class="submenu">
+                    <ul>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    <li><a href="">Sidebar submenu</a></li>
+                    </ul>
+                </div>
+                
+                <a class="menuitem" href="">User Reference</a>
+                -->
+                <!--
+                <a class="menuitem" href="">Blue button</a>
+                
+                <a class="menuitem_green" href="">Green button</a>
+                
+                <a class="menuitem_red" href="">Red button</a>
+                -->
+                <a class="menuitem" href="<{$receiver}>?do=DisplayHome">Buscar Repuesto</a>
+                
+				<{if $puedeAgregar}>
+					<a class="menuitem" href="<{$receiver}>?do=AgregaRepuestoMasivo">Agregar Repuesto Masivo</a>
+				<{/if}>
+				
+                <a class="menuitem" href="<{$receiver}>?do=ReporteActividad">Reporte Actividad</a>
+                
+                <a class="menuitem" href="<{$receiver}>?do=ReporteExistencias">Reporte Existencias</a>				
+                
+                <{if isset($search_keyword)}>
+		            <form action="<{$receiver}>?do=DisplayHome" method="post" id="buscar" name="form_search">
+			            <input type="hidden" name="search_keyword" class="search_input" value="<{$search_keyword}>" />
+						<!--            <input type="image" class="search_submit" src="images/search.png" />-->
+						<a class="menuitem_green" href="#" onclick="document.form_search.submit();">Volver al listado</a>
+		            </form>            
+				<{/if}>
+                <{if isset($plataforma)}>
+		         	<form action="<{$receiver}>?do=DisplayHome" method="post" id="buscar_2" name="form_search_2">
+						<input type="hidden" name="plataforma" value="<{$plataforma}>" />
+						<input type="hidden" name="region" value="<{$region}>" />
+						<input type="hidden" name="ciudad" value="<{$ciudad}>" />
+						<input type="hidden" name="re" value="<{$re}>" />
+						<input type="hidden" name="fabricante" value="<{$fabricante}>" />
+						<input type="hidden" name="modelo" value="<{$modelo}>" />
+						<a class="menuitem_green" href="#" onclick="document.form_search_2.submit();">Volver al listado</a>
+		            </form>            
+				<{/if}>
+
+            </div>
+            
+            <{include file="sidebar_box.html"}>
+            
+            <!--
+            
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h4>Important notice</h4>
+                <img src="images/notice.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h5>Download photos</h5>
+                <img src="images/photo.png" alt="" title="" class="sidebar_icon_right" />
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>  
+            -->
+            <!--
+            <div class="sidebar_box">
+                <div class="sidebar_box_top"></div>
+                <div class="sidebar_box_content">
+                <h3>To do List</h3>
+                <img src="images/info.png" alt="" title="" class="sidebar_icon_right" />
+                <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                 <li>Lorem ipsum dolor sit ametconsectetur <strong>adipisicing</strong> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur <a href="#">adipisicing</a> elit.</li>
+                   <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                    <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                     <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</li>
+                </ul>                
+                </div>
+                <div class="sidebar_box_bottom"></div>
+            </div>
+            --> 
+
+    
+    </div>  
+    
+    <div class="right_content">            
+        
+		<h2>Agrega&nbsp;Repuesto</h2>
+	                    
+	                    
+		<!--
+		<a href="#" class="bt_green"><span class="bt_green_lft"></span><strong>Add new item</strong><span class="bt_green_r"></span></a>
+	    <a href="#" class="bt_blue"><span class="bt_blue_lft"></span><strong>View all items from category</strong><span class="bt_blue_r"></span></a>
+	    <a href="#" class="bt_red"><span class="bt_red_lft"></span><strong>Delete items</strong><span class="bt_red_r"></span></a> 
+	     
+	     
+	        <div class="pagination">
+	        <span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a>…<a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>
+	        </div> 
+	    -->
+	    <!--
+	    <h2>Warning Box examples</h2>
+	      
+	    <div class="warning_box">
+	        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+	    </div>
+	    <div class="valid_box">
+	        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+	    </div>
+	    <div class="error_box">
+	        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
+	    </div>  
+	    -->
+      
+     
+     
+         <div class="form">
+	         <form action="<{$receiver}>?do=AgregaRepuesto" method="post" class="niceform" id="agrega_repuesto">
+
+				<!--
+				<block start="repuestoAgregado"/>
+					<input type="hidden" name="id" value="{id}" />
+				<block end="repuestoAgregado"/>
+				-->
+				
+				<input type="hidden" id="sel_plataforma" value="<{$ar_plataforma}>" />
+				<input type="hidden" id="sel_region" value="<{$ar_region}>" />
+				<input type="hidden" id="sel_ciudad" value="<{$ar_ciudad}>" />
+				<input type="hidden" id="sel_re" value="<{$ar_re}>" />
+				<input type="hidden" id="sel_fabricante" value="<{$ar_fabricante}>" />
+				<input type="hidden" id="sel_modelo" value="<{$ar_modelo}>" />
+				<input type="hidden" id="sel_encargado" value="<{$encargado}>" />
+         		
+                <fieldset>
+                    <dl>
+                        <dt><label for="plataforma">Plataforma *:</label></dt>
+                        <dd>
+                            <select size="1" name="ar_plataforma" id="plataforma" value="<{$ar_plataforma}>">
+                            	
+                                <option value="">Seleccione Plataforma</option>
+
+						    	<{foreach from=$plataformas item=plataforma}>
+						    	
+						    		<option value="<{$plataforma.id}>"><{$plataforma.descripcion}></option>
+						            
+						        <{/foreach}>
+
+                                <option value="9999">Otra</option>
+                                
+                            </select>
+                        	
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="otro_plataforma">Ingrese Plataforma *:</label></dt>
+                        <dd><input type="text" name="otro_plataforma" id="otro_plataforma" size="88.8" value="<{$otro_plataforma}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="region">Regi&oacute;n *:</label></dt>
+                        <dd>
+                            <select size="1" name="ar_region" id="region" value="<{$ar_region}>">
+                                <option value="">Seleccione Regi&oacute;n</option>
+
+						    	<{foreach from=$regiones item=region}>
+						    	
+						    		<option value="<{$region.id}>"><{$region.compuesto}></option>
+						            
+						        <{/foreach}>
+
+<!--                                <option value="">Otra</option>-->
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="ciudad">Ciudad *:</label></dt>
+                        <dd>
+                            <select size="1" name="ar_ciudad" id="ciudad" value="<{$ar_ciudad}>">
+                                <option value="">Seleccione Ciudad</option>
+                                
+                                <option value="9999">Otra</option>
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="otro_ciudad">Ingrese ciudad *:</label></dt>
+                        <dd><input type="text" name="otro_ciudad" id="otro_ciudad" size="88.8" value="<{$otro_ciudad}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="re">R/E *:</label></dt>
+                        <dd>
+                            <select size="1" name="ar_re" id="re" value="<{$ar_re}>">
+                                <option value="">Seleccione R/E</option>
+                                
+                                <option value="9999">Otra</option>
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="otro_re">Ingrese R/E *:</label></dt>
+                        <dd><input type="text" name="otro_re" id="otro_re" size="88.8" value="<{$otro_re}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="fabricante">Fabricante *:</label></dt>
+                        <dd>
+                            <select size="1" name="ar_fabricante" id="fabricante" value="<{$ar_fabricante}>">
+                                <option value="">Seleccione Fabricante</option>
+
+						    	<{foreach from=$fabricantes item=fabricante}>
+						    	
+						    		<option value="<{$fabricante.id}>"><{$fabricante.descripcion}></option>
+						            
+						        <{/foreach}>
+
+                                <option value="9999">Otro</option>
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="otro_fabricante">Ingrese fabricante *:</label></dt>
+                        <dd><input type="text" name="otro_fabricante" id="otro_fabricante" size="88.8" value="<{$otro_fabricante}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="modelo">Modelo *:</label></dt>
+                        <dd>
+                            <select size="1" name="ar_modelo" id="modelo" value="<{$ar_modelo}>">
+                                <option value="">Seleccione Modelo</option>
+                                
+                                <option value="9999">Otro</option>
+                            </select>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="otro_pid">Ingrese PID:</label></dt>
+                        <dd><input type="text" class="otro_modelo" name="otro_pid" id="otro_pid" size="88.8" value="<{$otro_pid}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="otro_descripcion">Ingrese descripci&oacute;n *:</label></dt>
+                        <dd><input type="text" class="otro_modelo" name="otro_descripcion" id="otro_descripcion" size="88.8" value="<{$otro_descripcion}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="otro_sap">Ingrese C&oacute;digo SAP:</label></dt>
+                        <dd><input type="text" class="number_input" name="otro_sap" id="otro_sap" size="88.8" value="<{$otro_sap}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="encargado">Encargado:</label></dt>
+                        <dd>
+                        
+                            <select size="1" name="encargado" id="encargado" value="<{$encargado}>">
+                                <option value="">Seleccione Encargado</option>
+
+						    	<{foreach from=$encargados item=item}>
+						    	
+						    		<option value="<{$item.id}>"><{$item.descripcion}></option>
+						            
+						        <{/foreach}>
+
+                                <option value="9999">Otro</option>
+                            </select>
+
+                        </dd>
+                    </dl>         
+                    <dl>
+                        <dt><label for="otro_encargado">Encargado:</label></dt>
+                        <dd><input type="text" name="otro_encargado" id="otro_encargado" size="88.8" value="<{$otro_encargado}>" /></dd>
+                    </dl>         
+                    <dl>
+                        <dt><label for="serial">Serial:</label></dt>
+                        <dd><input type="text" name="serial" id="serial" size="88.8" value="<{$serial}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="nombre">Nombre *:</label></dt>
+                        <dd><input type="text" name="nombre" id="nombre" size="88.8" value="<{$nombre}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="sla">SLA *:</label></dt>
+                        <dd><input type="text" name="sla" id="sla" size="88.8" value="<{$sla}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="cantidad">Cantidad *:</label></dt>
+                        <dd><input type="text" class="number_input" name="cantidad" id="cantidad" size="88.8" value="<{$cantidad}>" /></dd>
+                    </dl>
+                    <!--
+                    <dl>
+                        <dt><label for="posicion">IP:</label></dt>
+                        <dd><input type="text" name="posicion" id="posicion" size="88.8" value="<{$posicion}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="ip">IP:</label></dt>
+                        <dd><input type="text" name="ip" id="ip" size="88.8" value="<{$ip}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="consola_activa">Consola&nbsp;Activa:</label></dt>
+                        <dd><input type="text" name="consola_activa" id="consola_activa" size="88.8" value="<{$consola_activa}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="consola_standby">Consola&nbsp;Standby:</label></dt>
+                        <dd><input type="text" name="consola_standby" id="consola_standby" size="88.8" value="<{$consola_standby}>" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="ubicacion">Ubicaci&oacute;n:</label></dt>
+                        <dd><input type="text" name="ubicacion" id="ubicacion" size="88.8" value="<{$ubicacion}>" /></dd>
+                    </dl>
+                    
+                    <dl>
+                        <dt><label for="comments">Comentarios:</label></dt>
+                        <dd><textarea name="comments" id="comments" rows="5" cols="36"></textarea></dd>
+                    </dl>
+                    -->
+                    <dl class="submit">
+                    	<input type="submit" name="submit" id="submit" value="Grabar" />
+                    </dl>
+                    
+                    <{if isset($exito)}>
+		                <{if $exito}>
+							<div class="valid_box">
+							   <{$status_message}>
+							</div>
+						
+	                    <{else}>
+		                
+							<div class="error_box">
+							   <{$status_message}>
+							</div>
+						
+						<{/if}>
+					<{/if}>
+					
+                     
+                    <dl>
+                    	<label for="message" class="error"><{$message}></label>
+                    </dl>
+                     
+                    
+                	
+                	</fieldset>
+                
+         </form>
+         </div>  
+      
+     
+     </div><!-- end of right content-->
+            
+                    
+  </div>   <!--end of center content -->               
+                    
+                    
+    
+    
+    <div class="clear"></div>
+    </div> <!--end of main content-->
+	
+    <{include file="footer.html"}>
+
+</div>		
+</body>
+</html>

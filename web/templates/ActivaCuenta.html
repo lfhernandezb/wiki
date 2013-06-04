@@ -1,0 +1,118 @@
+<{include file="top.html"}>
+
+<script type="text/javascript" src="js/activa_cuenta.js"></script>
+
+</head>
+<body>
+<div id="main_container_login">
+
+	<div class="header_login">
+    	<div class="logo">
+    		<a href="#"><img src="images/logo.gif" alt="" title="" border="0" /></a>
+    		<div style="font-size: 11px; font-weight: bold;">Gerencia de Redes, Subgerencia de Agregaci&oacute;n</div>
+    	</div>
+    	<!--
+    	<div style="font-size: 13px; font-weight: bold; text-align: right;">Sistema de Gesti&oacute;n de Repuestos</div>
+    	-->
+    	
+    	<div class="right_header_login">
+		    <div style="font-size: 15px; font-weight: bold;">Sistema de Gesti&oacute;n de Repuestos</div>
+	    </div>
+	    
+    </div>
+
+     
+    <div class="login_form">
+         
+         <h3>Activaci&oacute;n de Cuenta '<{$username}>'</h3>
+         
+<!--         <a href="#" class="forgot_pass">Forgot password</a> -->
+         
+         	<form action="<{$receiver}>?do=ActivaCuenta" method="post" class="niceform" id="login">
+         		<input type="hidden" name="id_usuario" value="<{$id_usuario}>" />
+                <fieldset>
+                	<!--
+                    <dl>
+                        <dt><label for="usr">Nombre Usuario:</label></dt>
+                        <dd><input type="text" name="usr" id="usr" size="88.8" disabled="disabled" value="<{$username}>" /></dd>
+                    </dl>
+                    -->
+                    <dl>
+                        <dt style="width: 190px;"><label for="password">Contrase&ntilde;a actual:</label></dt>
+                        <dd><input type="password" name="password" id="password" size="50" value="<{$password}>"<{if (isset($exito) && $exito)}> disabled="disabled"<{/if}> /></dd>
+                    </dl>
+                    <dl>
+                        <dt style="width: 190px;"><label for="new_password">Contrase&ntilde;a nueva:</label></dt>
+                        <dd><input type="password" name="new_password" id="new_password" size="50" value="<{$new_password}>"<{if (isset($exito) && $exito)}> disabled="disabled"<{/if}> /></dd>
+                    </dl>
+                    <dl>
+                        <dt style="width: 190px;"><label for="confirm_password">Confirme contrase&ntilde;a:</label></dt>
+                        <dd><input type="password" name="confirm_password" id="confirm_password" size="50" value="<{$new_password}>"<{if (isset($exito) && $exito)}> disabled="disabled"<{/if}> /></dd>
+                    </dl>
+
+                    <{if isset($exito)}>
+		                <{if $exito}>
+		                    <dl style="width: 500px;" class="submit">
+		                    	<input type="submit" name="submit" id="submit" value="Ingresar" />
+		                    </dl>
+						
+	                    <{else}>
+		                
+		                    <dl style="width: 500px;" class="submit">
+		                    	<input type="submit" name="submit" id="submit" value="Activar" />
+		                    </dl>
+						
+						<{/if}>
+					<{else}>
+	                    <dl style="width: 500px;" class="submit">
+	                    	<input type="submit" name="submit" id="submit" value="Activar" />
+	                    </dl>
+					<{/if}>
+                    
+                    <{if isset($exito)}>
+		                <{if $exito}>
+		                    <dl style="width: 500px;">
+		                    	<label for="message" class="success"><{$message}></label>
+		                    </dl>
+	                    <{else}>
+		                    <dl style="width: 500px;">
+		                    	<label for="message" class="error"><{$message}></label>
+		                    </dl>
+						<{/if}>
+					<{else}>
+						<label for="message" class="error"><{$message}></label>
+					<{/if}>
+                    
+					<!--
+                    <{if isset($exito)}>
+		                <{if $exito}>
+							<div class="valid_box">
+							   <{$status_message}>
+							</div>
+						
+	                    <{else}>
+		                
+							<div class="error_box">
+							   <{$status_message}>
+							</div>
+						
+						<{/if}>
+					<{/if}>
+					-->
+                </fieldset>
+                
+         </form>
+         </div>  
+          
+	
+    
+    <div class="footer_login">
+    
+    	<div class="left_footer">SiGREP | Sitio desarrollado por <a href="http://www.dsoft.cl">DSOFT EIRL</a></div>
+    	<div class="right_footer"><a href="http://www.dsoft.cl"><img src="images/logo_dsoft.jpg" alt="" title="" border="0" /></a></div>
+    
+    </div>
+
+</div>		
+</body>
+</html>
