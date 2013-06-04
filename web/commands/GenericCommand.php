@@ -13,7 +13,7 @@ class GenericCommand extends BaseCommand
 		global $fc;
 		global $isDebug;
 		
-		//$this->initBase();
+		$this->initBase();
 		
 		$db = $fc->getLink();
 		
